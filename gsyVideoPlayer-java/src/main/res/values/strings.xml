@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="tips_not_wifi">您当前正在使用移动网络，继续播放将消耗流量</string>
-    <string name="tips_not_wifi_confirm">继续播放</string>
-    <string name="no_net">当前找不到网络</string>
-    <string name="tips_not_wifi_cancel">停止播放</string>
-    <string name="no_url">播放地址无效</string>
-    <string name="jump_ad">跳过</string>
+    <!--Player-->
+    <string name="tips_not_wifi">You are currently using a mobile network, continuing to play will consume data </string>
+    <string name="tips_not_wifi_confirm">Continuous play</string>
+    <string name="no_net">No network currently found</string>
+    <string name="tips_not_wifi_cancel">Stop playing</string>
+    <string name="no_url">Invalid playback address</string>
+    <string name="jump_ad">Skip</string>
+    <string name="player_full_screen">full screen</string>
+    <string name="player_stretch_full_screen">stretch full screen</string>
+    <string name="player_default_scale">default scale</string>
 
 </resources>

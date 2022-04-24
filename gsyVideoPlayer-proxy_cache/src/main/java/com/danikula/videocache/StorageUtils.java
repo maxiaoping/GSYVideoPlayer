@@ -1,12 +1,13 @@
 package com.danikula.videocache;
 
-import static android.os.Environment.MEDIA_MOUNTED;
-
 import android.content.Context;
-import android.os.Build;
 import android.os.Environment;
 
+
+
 import java.io.File;
+
+import static android.os.Environment.MEDIA_MOUNTED;
 
 /**
  * Provides application storage paths
@@ -16,7 +17,7 @@ import java.io.File;
  * @author Sergey Tarasevich (nostra13[at]gmail[dot]com)
  * @since 1.0.0
  */
-public class StorageUtils {
+final class StorageUtils {
 
     private static final String INDIVIDUAL_DIR_NAME = "video-cache";
 
@@ -47,19 +48,14 @@ public class StorageUtils {
     private static File getCacheDirectory(Context context, boolean preferExternal) {
         File appCacheDir = null;
         String externalStorageState;
-
         try {
             externalStorageState = Environment.getExternalStorageState();
         } catch (NullPointerException e) { // (sh)it happens
             externalStorageState = "";
         }
-
         if (preferExternal && MEDIA_MOUNTED.equals(externalStorageState)) {
-            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
-                appCacheDir = getExternalCacheDir(context);
-            }
+            appCacheDir = getExternalCacheDir(context);
         }
-
         if (appCacheDir == null) {
             appCacheDir = context.getCacheDir();
         }

@@ -2,14 +2,12 @@ package com.example.gsyvideoplayer.video;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.example.gsyvideoplayer.R;
-import com.shuyu.gsyvideoplayer.utils.Debuger;
 import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer;
 import com.shuyu.gsyvideoplayer.video.base.GSYBaseVideoPlayer;
 import com.shuyu.gsyvideoplayer.video.base.GSYVideoPlayer;
@@ -38,38 +36,6 @@ public class LandLayoutVideo extends StandardGSYVideoPlayer {
     }
 
 
-    @Override
-    protected void init(Context context) {
-        super.init(context);
-        post(new Runnable() {
-            @Override
-            public void run() {
-                gestureDetector = new GestureDetector(getContext().getApplicationContext(), new GestureDetector.SimpleOnGestureListener() {
-                    @Override
-                    public boolean onDoubleTap(MotionEvent e) {
-                        touchDoubleUp(e);
-                        return super.onDoubleTap(e);
-                    }
-
-                    @Override
-                    public boolean onSingleTapConfirmed(MotionEvent e) {
-                        if (!mChangePosition && !mChangeVolume && !mBrightness
-                            && mCurrentState != CURRENT_STATE_ERROR
-                        ) {
-                            onClickUiToggle(e);
-                        }
-                        return super.onSingleTapConfirmed(e);
-                    }
-
-                    @Override
-                    public void onLongPress(MotionEvent e) {
-                        super.onLongPress(e);
-                    }
-                });
-            }
-        });
-    }
-
     //这个必须配置最上面的构造才能生效
     @Override
     public int getLayoutId() {
@@ -82,7 +48,7 @@ public class LandLayoutVideo extends StandardGSYVideoPlayer {
     @Override
     protected void updateStartImage() {
         if (mIfCurrentIsFullscreen) {
-            if (mStartButton instanceof ImageView) {
+            if(mStartButton instanceof  ImageView) {
                 ImageView imageView = (ImageView) mStartButton;
                 if (mCurrentState == CURRENT_STATE_PLAYING) {
                     imageView.setImageResource(R.drawable.video_click_pause_selector);
@@ -99,7 +65,7 @@ public class LandLayoutVideo extends StandardGSYVideoPlayer {
 
     @Override
     public int getEnlargeImageRes() {
-        return R.drawable.custom_enlarge;
+            return R.drawable.custom_enlarge;
     }
 
     @Override
@@ -118,7 +84,7 @@ public class LandLayoutVideo extends StandardGSYVideoPlayer {
 
     @Override
     protected void resolveNormalVideoShow(View oldF, ViewGroup vp, GSYVideoPlayer gsyVideoPlayer) {
-        LandLayoutVideo landLayoutVideo = (LandLayoutVideo) gsyVideoPlayer;
+        LandLayoutVideo landLayoutVideo = (LandLayoutVideo)gsyVideoPlayer;
         landLayoutVideo.dismissProgressDialog();
         landLayoutVideo.dismissVolumeDialog();
         landLayoutVideo.dismissBrightnessDialog();
@@ -127,23 +93,5 @@ public class LandLayoutVideo extends StandardGSYVideoPlayer {
 
     public void setLinkScroll(boolean linkScroll) {
         isLinkScroll = linkScroll;
-    }
-
-
-    /**
-     * 定义结束后的显示
-     */
-    @Override
-    protected void changeUiToCompleteClear() {
-        super.changeUiToCompleteClear();
-        setTextAndProgress(0, true);
-        //changeUiToNormal();
-    }
-
-    @Override
-    protected void changeUiToCompleteShow() {
-        super.changeUiToCompleteShow();
-        setTextAndProgress(0, true);
-        //changeUiToNormal();
     }
 }

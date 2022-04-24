@@ -1,18 +1,15 @@
 package com.danikula.videocache;
 
-import static com.danikula.videocache.Preconditions.checkNotNull;
-
 import android.text.TextUtils;
-
-import androidx.annotation.NonNull;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.danikula.videocache.Preconditions.checkNotNull;
 
 /**
  * Model for Http GET request.
@@ -37,7 +34,7 @@ class GetRequest {
     }
 
     public static GetRequest read(InputStream inputStream) throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
         StringBuilder stringRequest = new StringBuilder();
         String line;
         while (!TextUtils.isEmpty(line = reader.readLine())) { // until new line (headers ending)
@@ -63,13 +60,12 @@ class GetRequest {
         throw new IllegalArgumentException("Invalid request `" + request + "`: url not found!");
     }
 
-    @NonNull
     @Override
     public String toString() {
         return "GetRequest{" +
-            "rangeOffset=" + rangeOffset +
-            ", partial=" + partial +
-            ", uri='" + uri + '\'' +
-            '}';
+                "rangeOffset=" + rangeOffset +
+                ", partial=" + partial +
+                ", uri='" + uri + '\'' +
+                '}';
     }
 }

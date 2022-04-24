@@ -2,27 +2,23 @@ package com.example.gsyvideoplayer.utils;
 
 import android.app.Activity;
 import android.content.Intent;
-
-import androidx.core.app.ActivityCompat;
-import androidx.core.app.ActivityOptionsCompat;
-import androidx.core.util.Pair;
-
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.util.Pair;
 import android.view.View;
 
-import com.example.gsyvideoplayer.AudioDetailPlayer;
 import com.example.gsyvideoplayer.AutoPlayRecyclerViewActivity;
 import com.example.gsyvideoplayer.DanmkuVideoActivity;
 import com.example.gsyvideoplayer.DetailADPlayer;
 import com.example.gsyvideoplayer.DetailADPlayer2;
 import com.example.gsyvideoplayer.DetailControlActivity;
-import com.example.gsyvideoplayer.DetailDownloadPlayer;
 import com.example.gsyvideoplayer.DetailFilterActivity;
 import com.example.gsyvideoplayer.DetailListPlayer;
 import com.example.gsyvideoplayer.DetailMoreTypeActivity;
-import com.example.gsyvideoplayer.DetailNormalActivityPlayer;
 import com.example.gsyvideoplayer.DetailPlayer;
 import com.example.gsyvideoplayer.FragmentVideoActivity;
 import com.example.gsyvideoplayer.InputUrlDetailActivity;
+import com.example.gsyvideoplayer.ListADVideoActivity;
 import com.example.gsyvideoplayer.ListADVideoActivity2;
 import com.example.gsyvideoplayer.ListMultiVideoActivity;
 import com.example.gsyvideoplayer.ListVideo2Activity;
@@ -32,14 +28,11 @@ import com.example.gsyvideoplayer.PlayEmptyControlActivity;
 import com.example.gsyvideoplayer.PlayPickActivity;
 import com.example.gsyvideoplayer.R;
 import com.example.gsyvideoplayer.RecyclerView2Activity;
-import com.example.gsyvideoplayer.RecyclerView3Activity;
 import com.example.gsyvideoplayer.RecyclerViewActivity;
 import com.example.gsyvideoplayer.ScrollingActivity;
-import com.example.gsyvideoplayer.ViewPager2Activity;
 import com.example.gsyvideoplayer.WebDetailActivity;
 import com.example.gsyvideoplayer.WindowActivity;
 import com.example.gsyvideoplayer.exo.DetailExoListPlayer;
-import com.example.gsyvideoplayer.exosubtitle.GSYExoSubTitleDetailPlayer;
 import com.example.gsyvideoplayer.switchplay.SwitchListVideoActivity;
 
 /**
@@ -164,18 +157,6 @@ public class JumpUtils {
     }
 
     /**
-     * 跳转到硬解码
-     *
-     * @param activity
-     */
-    public static void goMediaCodec(Activity activity) {
-        Intent intent = new Intent(activity, RecyclerView3Activity.class);
-        ActivityOptionsCompat activityOptions = ActivityOptionsCompat.makeSceneTransitionAnimation(activity);
-        ActivityCompat.startActivity(activity, intent, activityOptions.toBundle());
-    }
-
-
-    /**
      * 跳转到详情播放
      *
      * @param activity
@@ -229,6 +210,8 @@ public class JumpUtils {
     }
 
 
+
+
     /**
      * 跳转到详情播放
      *
@@ -254,59 +237,11 @@ public class JumpUtils {
      *
      * @param activity
      */
-    public static void goToDetailNormalActivity(Activity activity) {
-        Intent intent = new Intent(activity, DetailNormalActivityPlayer.class);
-        activity.startActivity(intent);
-    }
-
-    /**
-     * 跳转到详情播放
-     *
-     * @param activity
-     */
-    public static void goToDetailDownloadActivity(Activity activity) {
-        Intent intent = new Intent(activity, DetailDownloadPlayer.class);
-        activity.startActivity(intent);
-    }
-
-    /**
-     * 跳转到详情播放
-     *
-     * @param activity
-     */
-    public static void goToGSYExoSubTitleDetailPlayer(Activity activity) {
-        Intent intent = new Intent(activity, GSYExoSubTitleDetailPlayer.class);
-        activity.startActivity(intent);
-    }
-
-    /**
-     * 跳转到详情播放
-     *
-     * @param activity
-     */
-    public static void goToDetailAudioActivity(Activity activity) {
-        Intent intent = new Intent(activity, AudioDetailPlayer.class);
-        activity.startActivity(intent);
-    }
-    /**
-     * 跳转到ViewPager详情播放
-     *
-     * @param activity
-     */
-    public static void goToViewPager2Activity(Activity activity) {
-        Intent intent = new Intent(activity, ViewPager2Activity.class);
-        activity.startActivity(intent);
-    }
-
-    /**
-     * 跳转到详情播放
-     *
-     * @param activity
-     */
     public static void goToDetailExoListPlayer(Activity activity) {
         Intent intent = new Intent(activity, DetailExoListPlayer.class);
         activity.startActivity(intent);
     }
+
 
 
     /**
@@ -318,6 +253,8 @@ public class JumpUtils {
         Intent intent = new Intent(activity, DetailADPlayer2.class);
         activity.startActivity(intent);
     }
+
+
 
 
     /**

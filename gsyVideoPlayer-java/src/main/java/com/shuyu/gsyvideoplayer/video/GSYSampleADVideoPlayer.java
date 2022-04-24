@@ -3,7 +3,6 @@ package com.shuyu.gsyvideoplayer.video;
 import android.content.Context;
 import android.graphics.Color;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -166,11 +165,11 @@ public class GSYSampleADVideoPlayer extends ListGSYVideoPlayer {
      * 广告期间不需要双击
      */
     @Override
-    protected void touchDoubleUp(MotionEvent e) {
+    protected void touchDoubleUp() {
         if (isAdModel) {
             return;
         }
-        super.touchDoubleUp(e);
+        super.touchDoubleUp();
     }
 
     /**
@@ -224,11 +223,11 @@ public class GSYSampleADVideoPlayer extends ListGSYVideoPlayer {
     }
 
     @Override
-    protected void setProgressAndTime(long progress, long secProgress, long currentTime, long totalTime, boolean forceChange) {
-        super.setProgressAndTime(progress, secProgress, currentTime, totalTime, forceChange);
+    protected void setProgressAndTime(int progress, int secProgress, int currentTime, int totalTime) {
+        super.setProgressAndTime(progress, secProgress, currentTime, totalTime);
         if (mADTime != null && currentTime > 0) {
-            long totalSeconds = totalTime / 1000;
-            long currentSeconds = currentTime / 1000;
+            int totalSeconds = totalTime / 1000;
+            int currentSeconds = currentTime / 1000;
             mADTime.setText("" + (totalSeconds - currentSeconds));
         }
     }

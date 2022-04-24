@@ -4,25 +4,28 @@ import android.Manifest;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.opengl.Matrix;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-
-import android.util.Log;
+import android.support.annotation.NonNull;
+import android.support.v4.widget.NestedScrollView;
 import android.util.TypedValue;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.example.gsyvideoplayer.databinding.ActivityDetailFilterBinding;
 import com.example.gsyvideoplayer.effect.BitmapIconEffect;
 import com.example.gsyvideoplayer.effect.GSYVideoGLViewCustomRender;
+import com.example.gsyvideoplayer.effect.GSYVideoGLViewCustomRender2;
+import com.example.gsyvideoplayer.effect.GSYVideoGLViewCustomRender4;
 import com.example.gsyvideoplayer.effect.PixelationEffect;
 import com.example.gsyvideoplayer.utils.CommonUtil;
+import com.example.gsyvideoplayer.video.SampleControlVideo;
 import com.shuyu.gsyvideoplayer.GSYBaseActivityDetail;
 import com.shuyu.gsyvideoplayer.listener.GSYVideoGifSaveListener;
 import com.shuyu.gsyvideoplayer.render.view.GSYVideoGLView;
@@ -59,12 +62,15 @@ import com.shuyu.gsyvideoplayer.utils.FileUtils;
 import com.shuyu.gsyvideoplayer.utils.GSYVideoType;
 import com.shuyu.gsyvideoplayer.utils.GifCreateHelper;
 import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer;
+import com.shuyu.gsyvideoplayer.video.base.GSYBaseVideoPlayer;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.OnNeverAskAgain;
 import permissions.dispatcher.OnPermissionDenied;
@@ -81,6 +87,33 @@ import permissions.dispatcher.RuntimePermissions;
 @RuntimePermissions
 public class DetailFilterActivity extends GSYBaseActivityDetail<StandardGSYVideoPlayer> {
 
+    @BindView(R.id.post_detail_nested_scroll)
+    NestedScrollView postDetailNestedScroll;
+
+    @BindView(R.id.detail_player)
+    SampleControlVideo detailPlayer;
+
+    @BindView(R.id.activity_detail_player)
+    RelativeLayout activityDetailPlayer;
+
+    @BindView(R.id.change_filter)
+    Button changeFilter;
+
+
+    @BindView(R.id.jump)
+    Button jump;
+
+    @BindView(R.id.change_anima)
+    Button anima;
+
+    @BindView(R.id.start_gif)
+    Button startGif;
+
+    @BindView(R.id.stop_gif)
+    Button stopGif;
+
+    @BindView(R.id.loadingView)
+    View loadingView;
 
     private int type = 0;
 
@@ -109,18 +142,12 @@ public class DetailFilterActivity extends GSYBaseActivityDetail<StandardGSYVideo
 
     private GifCreateHelper mGifCreateHelper;
 
-    private ActivityDetailFilterBinding binding;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_detail_filter);
+        ButterKnife.bind(this);
 
-        binding = ActivityDetailFilterBinding.inflate(getLayoutInflater());
-
-        View rootView = binding.getRoot();
-        setContentView(rootView);
-
-        Log.e("@@@@@@@", "####" +binding.detailPlayer );
         backupRendType = GSYVideoType.getRenderType();
 
         //设置为GL播放模式，才能支持滤镜，注意此设置是全局的
@@ -132,7 +159,7 @@ public class DetailFilterActivity extends GSYBaseActivityDetail<StandardGSYVideo
 
         initGifHelper();
 
-        binding.detailPlayer.setLockClickListener(new LockClickListener() {
+        detailPlayer.setLockClickListener(new LockClickListener() {
             @Override
             public void onClick(View view, boolean lock) {
                 if (orientationUtils != null) {
@@ -165,7 +192,7 @@ public class DetailFilterActivity extends GSYBaseActivityDetail<StandardGSYVideo
         //detailPlayer.setCustomGLRenderer(new GSYVideoGLViewCustomRender4());
         //detailPlayer.setGLRenderMode(GSYVideoGLView.MODE_RENDER_SIZE);
 
-        binding.changeFilter.setOnClickListener(new View.OnClickListener() {
+        changeFilter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 resolveTypeUI();
@@ -173,7 +200,7 @@ public class DetailFilterActivity extends GSYBaseActivityDetail<StandardGSYVideo
         });
 
         //使用GL播放的话，用这种方式可以解决退出全屏黑屏的问题
-        binding.detailPlayer.setBackFromFullScreenListener(new View.OnClickListener() {
+        detailPlayer.setBackFromFullScreenListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 DetailFilterActivity.this.onBackPressed();
@@ -181,7 +208,7 @@ public class DetailFilterActivity extends GSYBaseActivityDetail<StandardGSYVideo
         });
 
 
-        binding.jump.setOnClickListener(new View.OnClickListener() {
+        jump.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //shotImage(v);
@@ -192,7 +219,7 @@ public class DetailFilterActivity extends GSYBaseActivityDetail<StandardGSYVideo
             }
         });
 
-        binding.changeAnima.setOnClickListener(new View.OnClickListener() {
+        anima.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //画面旋转
@@ -213,21 +240,21 @@ public class DetailFilterActivity extends GSYBaseActivityDetail<StandardGSYVideo
         });
 
 
-        binding.startGif.setOnClickListener(new View.OnClickListener() {
+        startGif.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 DetailFilterActivityPermissionsDispatcher.startGifWithPermissionCheck(DetailFilterActivity.this);
             }
         });
 
-        binding.stopGif.setOnClickListener(new View.OnClickListener() {
+        stopGif.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 stopGif();
             }
         });
 
-        binding.loadingView.setOnClickListener(new View.OnClickListener() {
+        loadingView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //do nothing
@@ -237,7 +264,7 @@ public class DetailFilterActivity extends GSYBaseActivityDetail<StandardGSYVideo
 
     @Override
     public StandardGSYVideoPlayer getGSYVideoPlayer() {
-        return binding.detailPlayer;
+        return detailPlayer;
     }
 
     @Override
@@ -246,16 +273,16 @@ public class DetailFilterActivity extends GSYBaseActivityDetail<StandardGSYVideo
         ImageView imageView = new ImageView(this);
         loadCover(imageView, url);
         return new GSYVideoOptionBuilder()
-            .setThumbImageView(imageView)
-            .setUrl(url)
-            .setCacheWithPlay(true)
-            .setVideoTitle(" ")
-            .setIsTouchWiget(true)
-            .setRotateViewAuto(false)
-            .setLockLand(false)
-            .setShowFullAnimation(false)
-            .setNeedLockFull(true)
-            .setSeekRatio(1);
+                .setThumbImageView(imageView)
+                .setUrl(url)
+                .setCacheWithPlay(true)
+                .setVideoTitle(" ")
+                .setIsTouchWiget(true)
+                .setRotateViewAuto(false)
+                .setLockLand(false)
+                .setShowFullAnimation(false)
+                .setNeedLockFull(true)
+                .setSeekRatio(1);
     }
 
     @Override
@@ -265,7 +292,6 @@ public class DetailFilterActivity extends GSYBaseActivityDetail<StandardGSYVideo
 
     /**
      * 是否启动旋转横屏，true表示启动
-     *
      * @return true
      */
     @Override
@@ -287,7 +313,7 @@ public class DetailFilterActivity extends GSYBaseActivityDetail<StandardGSYVideo
     @NeedsPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
     void shotImage(final View v) {
         //获取截图
-        binding.detailPlayer.taskShotPic(new GSYVideoShotListener() {
+        detailPlayer.taskShotPic(new GSYVideoShotListener() {
             @Override
             public void getBitmap(Bitmap bitmap) {
                 if (bitmap != null) {
@@ -308,15 +334,16 @@ public class DetailFilterActivity extends GSYBaseActivityDetail<StandardGSYVideo
     }
 
 
+
     private void initGifHelper() {
-        mGifCreateHelper = new GifCreateHelper(binding.detailPlayer, new GSYVideoGifSaveListener() {
+        mGifCreateHelper = new GifCreateHelper(detailPlayer, new GSYVideoGifSaveListener() {
             @Override
             public void result(boolean success, File file) {
-                binding.detailPlayer.post(new Runnable() {
+                detailPlayer.post(new Runnable() {
                     @Override
                     public void run() {
-                        binding.loadingView.setVisibility(View.GONE);
-                        Toast.makeText(binding.detailPlayer.getContext(), "创建成功", Toast.LENGTH_LONG).show();
+                        loadingView.setVisibility(View.GONE);
+                        Toast.makeText(detailPlayer.getContext(), "创建成功", Toast.LENGTH_LONG).show();
                     }
                 });
             }
@@ -343,7 +370,7 @@ public class DetailFilterActivity extends GSYBaseActivityDetail<StandardGSYVideo
      * 生成gif
      */
     private void stopGif() {
-        binding.loadingView.setVisibility(View.VISIBLE);
+        loadingView.setVisibility(View.VISIBLE);
         mGifCreateHelper.stopGif(new File(FileUtils.getPath(), "GSY-Z-" + System.currentTimeMillis() + ".gif"));
     }
 
@@ -356,20 +383,20 @@ public class DetailFilterActivity extends GSYBaseActivityDetail<StandardGSYVideo
         imageView.setImageResource(R.mipmap.xxx1);
 
         Glide.with(this.getApplicationContext())
-            .setDefaultRequestOptions(
-                new RequestOptions()
-                    .frame(3000000)
-                    .centerCrop()
-                    .error(R.mipmap.xxx2)
-                    .placeholder(R.mipmap.xxx1))
-            .load(url)
-            .into(imageView);
+                .setDefaultRequestOptions(
+                        new RequestOptions()
+                                .frame(3000000)
+                                .centerCrop()
+                                .error(R.mipmap.xxx2)
+                                .placeholder(R.mipmap.xxx1))
+                .load(url)
+                .into(imageView);
     }
 
     private void resolveNormalVideoUI() {
         //增加title
-        binding.detailPlayer.getTitleTextView().setVisibility(View.GONE);
-        binding.detailPlayer.getBackButton().setVisibility(View.GONE);
+        detailPlayer.getTitleTextView().setVisibility(View.GONE);
+        detailPlayer.getBackButton().setVisibility(View.GONE);
     }
 
     /**
@@ -460,7 +487,7 @@ public class DetailFilterActivity extends GSYBaseActivityDetail<StandardGSYVideo
                 effect = new BrightnessEffect(deep);
                 break;
         }
-        binding.detailPlayer.setEffectFilter(effect);
+        detailPlayer.setEffectFilter(effect);
         type++;
         if (type > 25) {
             type = 0;
@@ -538,7 +565,7 @@ public class DetailFilterActivity extends GSYBaseActivityDetail<StandardGSYVideo
                     break;
             }
             //设置渲染transform
-            binding.detailPlayer.setMatrixGL(transform);
+            detailPlayer.setMatrixGL(transform);
             percentage++;
             if (percentage > 100) {
                 percentage = 1;
@@ -548,11 +575,11 @@ public class DetailFilterActivity extends GSYBaseActivityDetail<StandardGSYVideo
 
     private int dp2px(int dp) {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp,
-            getResources().getDisplayMetrics());
+                getResources().getDisplayMetrics());
     }
 
     private void showToast(final String tip) {
-        binding.detailPlayer.post(new Runnable() {
+        detailPlayer.post(new Runnable() {
             @Override
             public void run() {
                 Toast.makeText(DetailFilterActivity.this, tip, Toast.LENGTH_LONG).show();
@@ -564,20 +591,20 @@ public class DetailFilterActivity extends GSYBaseActivityDetail<StandardGSYVideo
     @OnShowRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)
     void showRationaleForCamera(final PermissionRequest request) {
         new AlertDialog.Builder(this)
-            .setMessage("快给我权限")
-            .setPositiveButton("允许", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    request.proceed();
-                }
-            })
-            .setNegativeButton("拒绝", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    request.cancel();
-                }
-            })
-            .show();
+                .setMessage("快给我权限")
+                .setPositiveButton("允许", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        request.proceed();
+                    }
+                })
+                .setNegativeButton("拒绝", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        request.cancel();
+                    }
+                })
+                .show();
     }
 
     @OnPermissionDenied(Manifest.permission.WRITE_EXTERNAL_STORAGE)

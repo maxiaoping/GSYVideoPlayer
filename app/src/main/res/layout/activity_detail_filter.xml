@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <androidx.core.widget.NestedScrollView
+    <android.support.v4.widget.NestedScrollView
         android:id="@+id/post_detail_nested_scroll"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -27,7 +27,7 @@
 
         </LinearLayout>
 
-    </androidx.core.widget.NestedScrollView>
+    </android.support.v4.widget.NestedScrollView>
 
     <com.example.gsyvideoplayer.video.SampleControlVideo
         android:id="@+id/detail_player"
@@ -92,11 +92,11 @@
         android:id="@+id/loadingView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#A0000000"
-        android:visibility="gone">
+        android:visibility="gone"
+        android:background="#A0000000">
 
         <ProgressBar
-            android:id="@+id/loadingBar"
+            android:id="@+id/loading"
             style="?android:attr/progressBarStyleLarge"
             android:layout_width="50dp"
             android:layout_height="50dp"
@@ -106,7 +106,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/loadingBar"
+            android:layout_below="@+id/loading"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
             android:layout_marginTop="15dp"

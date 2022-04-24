@@ -1,21 +1,12 @@
 package com.danikula.videocache;
 
-import static com.danikula.videocache.Preconditions.checkNotNull;
-import static com.danikula.videocache.ProxyCacheUtils.DEFAULT_BUFFER_SIZE;
-import static java.net.HttpURLConnection.HTTP_MOVED_PERM;
-import static java.net.HttpURLConnection.HTTP_MOVED_TEMP;
-import static java.net.HttpURLConnection.HTTP_OK;
-import static java.net.HttpURLConnection.HTTP_PARTIAL;
-import static java.net.HttpURLConnection.HTTP_SEE_OTHER;
-
 import android.text.TextUtils;
-
-import androidx.annotation.NonNull;
 
 import com.danikula.videocache.headers.EmptyHeadersInjector;
 import com.danikula.videocache.headers.HeaderInjector;
 import com.danikula.videocache.sourcestorage.SourceInfoStorage;
 import com.danikula.videocache.sourcestorage.SourceInfoStorageFactory;
+
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -23,15 +14,15 @@ import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
+import static com.danikula.videocache.Preconditions.checkNotNull;
+import static com.danikula.videocache.ProxyCacheUtils.DEFAULT_BUFFER_SIZE;
+import static java.net.HttpURLConnection.HTTP_MOVED_PERM;
+import static java.net.HttpURLConnection.HTTP_MOVED_TEMP;
+import static java.net.HttpURLConnection.HTTP_OK;
+import static java.net.HttpURLConnection.HTTP_PARTIAL;
+import static java.net.HttpURLConnection.HTTP_SEE_OTHER;
 
 /**
  * {@link Source} that uses http resource as source for {@link ProxyCache}.
@@ -43,36 +34,30 @@ public class HttpUrlSource implements Source {
     private static final int MAX_REDIRECTS = 5;
     private final SourceInfoStorage sourceInfoStorage;
     private final HeaderInjector headerInjector;
-    private final HostnameVerifier v;
-    private final TrustManager[] trustAllCerts;
     private SourceInfo sourceInfo;
     private HttpURLConnection connection;
     private InputStream inputStream;
 
-    public HttpUrlSource(String url, HostnameVerifier v, TrustManager[] trustAllCerts) {
-        this(url, SourceInfoStorageFactory.newEmptySourceInfoStorage(), v, trustAllCerts);
+    public HttpUrlSource(String url) {
+        this(url, SourceInfoStorageFactory.newEmptySourceInfoStorage());
     }
 
-    public HttpUrlSource(String url, SourceInfoStorage sourceInfoStorage, HostnameVerifier v, TrustManager[] trustAllCerts) {
-        this(url, sourceInfoStorage, new EmptyHeadersInjector(), v, trustAllCerts);
+    public HttpUrlSource(String url, SourceInfoStorage sourceInfoStorage) {
+        this(url, sourceInfoStorage, new EmptyHeadersInjector());
     }
 
-    public HttpUrlSource(String url, SourceInfoStorage sourceInfoStorage, HeaderInjector headerInjector, HostnameVerifier v, TrustManager[] trustAllCerts) {
+    public HttpUrlSource(String url, SourceInfoStorage sourceInfoStorage, HeaderInjector headerInjector) {
         this.sourceInfoStorage = checkNotNull(sourceInfoStorage);
         this.headerInjector = checkNotNull(headerInjector);
-        this.v = v;
-        this.trustAllCerts = trustAllCerts;
         SourceInfo sourceInfo = sourceInfoStorage.get(url);
         this.sourceInfo = sourceInfo != null ? sourceInfo :
-            new SourceInfo(url, Integer.MIN_VALUE, ProxyCacheUtils.getSupposablyMime(url));
+                new SourceInfo(url, Integer.MIN_VALUE, ProxyCacheUtils.getSupposablyMime(url));
     }
 
     public HttpUrlSource(HttpUrlSource source) {
         this.sourceInfo = source.sourceInfo;
         this.sourceInfoStorage = source.sourceInfoStorage;
         this.headerInjector = source.headerInjector;
-        this.trustAllCerts = source.trustAllCerts;
-        this.v = source.v;
     }
 
     @Override
@@ -100,7 +85,7 @@ public class HttpUrlSource implements Source {
     private long readSourceAvailableBytes(HttpURLConnection connection, long offset, int responseCode) throws IOException {
         long contentLength = getContentLength(connection);
         return responseCode == HTTP_OK ? contentLength
-            : responseCode == HTTP_PARTIAL ? contentLength + offset : sourceInfo.length;
+                : responseCode == HTTP_PARTIAL ? contentLength + offset : sourceInfo.length;
     }
 
     private long getContentLength(HttpURLConnection connection) {
@@ -115,14 +100,14 @@ public class HttpUrlSource implements Source {
                 connection.disconnect();
             } catch (NullPointerException | IllegalArgumentException e) {
                 String message = "Wait... but why? WTF!? " +
-                    "Really shouldn't happen any more after fixing https://github.com/danikula/AndroidVideoCache/issues/43. " +
-                    "If you read it on your device log, please, notify me danikula@gmail.com or create issue here " +
-                    "https://github.com/danikula/AndroidVideoCache/issues.";
+                        "Really shouldn't happen any more after fixing https://github.com/danikula/AndroidVideoCache/issues/43. " +
+                        "If you read it on your device log, please, notify me danikula@gmail.com or create issue here " +
+                        "https://github.com/danikula/AndroidVideoCache/issues.";
                 throw new RuntimeException(message, e);
             } catch (ArrayIndexOutOfBoundsException e) {
                 HttpProxyCacheDebuger.printfError("Error closing connection correctly. Should happen only on Android L. " +
-                    "If anybody know how to fix it, please visit https://github.com/danikula/AndroidVideoCache/issues/88. " +
-                    "Until good solution is not know, just ignore this issue :(", e);
+                        "If anybody know how to fix it, please visit https://github.com/danikula/AndroidVideoCache/issues/88. " +
+                        "Until good solution is not know, just ignore this issue :(", e);
             }
         }
     }
@@ -167,24 +152,7 @@ public class HttpUrlSource implements Source {
         int redirectCount = 0;
         String url = this.sourceInfo.url;
         do {
-            if (url.startsWith("https") && v != null && trustAllCerts != null) {
-                connection = (HttpURLConnection) new URL(url).openConnection();
-                ((HttpsURLConnection) connection).setHostnameVerifier(v);
-                // Install the all-trusting trust manager
-                final SSLContext sslContext;
-                try {
-                    sslContext = SSLContext.getInstance("SSL");
-                    sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
-                    // Create an ssl socket factory with our all-trusting manager
-                    final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
-                    ((HttpsURLConnection) connection).setSSLSocketFactory(sslSocketFactory);
-                    ((HttpsURLConnection) connection).setHostnameVerifier(v);
-                } catch (NoSuchAlgorithmException | KeyManagementException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                connection = (HttpURLConnection) new URL(url).openConnection();
-            }
+            connection = (HttpURLConnection) new URL(url).openConnection();
             injectCustomHeaders(connection, url);
             if (offset > 0) {
                 connection.setRequestProperty("Range", "bytes=" + offset + "-");
@@ -229,7 +197,6 @@ public class HttpUrlSource implements Source {
         return sourceInfo.url;
     }
 
-    @NonNull
     @Override
     public String toString() {
         return "HttpUrlSource{sourceInfo='" + sourceInfo + "}";

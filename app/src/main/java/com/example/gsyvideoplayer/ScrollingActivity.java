@@ -3,19 +3,17 @@ package com.example.gsyvideoplayer;
 import android.content.res.Configuration;
 import android.graphics.Point;
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ImageView;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
-
 import com.example.gsyvideoplayer.listener.AppBarStateChangeListener;
 import com.example.gsyvideoplayer.video.LandLayoutVideo;
-import com.google.android.material.appbar.AppBarLayout;
-import com.google.android.material.appbar.CollapsingToolbarLayout;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.shuyu.gsyvideoplayer.GSYVideoManager;
 import com.shuyu.gsyvideoplayer.builder.GSYVideoOptionBuilder;
 import com.shuyu.gsyvideoplayer.listener.GSYSampleCallBack;
@@ -86,7 +84,7 @@ public class ScrollingActivity extends AppCompatActivity {
                         Debuger.printfError("***** onPrepared **** " + objects[1]);
                         super.onPrepared(url, objects);
                         //开始播放了才能旋转和全屏
-                        orientationUtils.setEnable(detailPlayer.isRotateWithSystem());
+                        orientationUtils.setEnable(true);
                         isPlay = true;
                         root.removeView(fab);
                     }
@@ -113,9 +111,6 @@ public class ScrollingActivity extends AppCompatActivity {
                         super.onQuitFullscreen(url, objects);
                         Debuger.printfError("***** onQuitFullscreen **** " + objects[0]);//title
                         Debuger.printfError("***** onQuitFullscreen **** " + objects[1]);//当前非全屏player
-
-                        // ------- ！！！如果不需要旋转屏幕，可以不调用！！！-------
-                        // 不需要屏幕旋转，还需要设置 setNeedOrientationUtils(false)
                         if (orientationUtils != null) {
                             orientationUtils.backToProtVideo();
                         }
@@ -132,7 +127,7 @@ public class ScrollingActivity extends AppCompatActivity {
                 })
                 .setGSYVideoProgressListener(new GSYVideoProgressListener() {
                     @Override
-                    public void onProgress(long progress, long secProgress, long currentPosition, long duration) {
+                    public void onProgress(int progress, int secProgress, int currentPosition, int duration) {
                         Debuger.printfLog(" progress " + progress + " secProgress " + secProgress + " currentPosition " + currentPosition + " duration " + duration);
                     }
                 })
@@ -142,8 +137,6 @@ public class ScrollingActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //直接横屏
-                // ------- ！！！如果不需要旋转屏幕，可以不调用！！！-------
-                // 不需要屏幕旋转，还需要设置 setNeedOrientationUtils(false)
                 orientationUtils.resolveByClick();
 
                 //第一个true是否需要隐藏actionbar，第二个true是否需要隐藏statusbar
@@ -157,8 +150,6 @@ public class ScrollingActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
 
-        // ------- ！！！如果不需要旋转屏幕，可以不调用！！！-------
-        // 不需要屏幕旋转，还需要设置 setNeedOrientationUtils(false)
         if (orientationUtils != null) {
             orientationUtils.backToProtVideo();
         }
@@ -196,11 +187,8 @@ public class ScrollingActivity extends AppCompatActivity {
     }
 
 
-    /**
-     * orientationUtils 和  detailPlayer.onConfigurationChanged 方法是用于触发屏幕旋转的
-     */
     @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+    public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         //如果旋转了就全屏
         if (isPlay && !isPause) {

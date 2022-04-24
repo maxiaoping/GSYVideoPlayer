@@ -15,11 +15,10 @@ import com.shuyu.gsyvideoplayer.listener.VideoAllCallBack;
 import com.shuyu.gsyvideoplayer.video.base.GSYVideoPlayer;
 import com.shuyu.gsyvideoplayer.video.base.GSYBaseVideoPlayer;
 import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer;
+import com.transitionseverywhere.TransitionManager;
 
 import java.io.File;
 import java.util.Map;
-
-import androidx.transition.TransitionManager;
 
 import static com.shuyu.gsyvideoplayer.utils.CommonUtil.getActionBarHeight;
 import static com.shuyu.gsyvideoplayer.utils.CommonUtil.getStatusBarHeight;
@@ -272,8 +271,6 @@ public class ListVideoUtil {
      * 处理正常逻辑
      */
     private void resolveToNormal() {
-        // ------- ！！！如果不需要旋转屏幕，可以不调用！！！-------
-        // 不需要屏幕旋转，还需要设置 setNeedOrientationUtils(false)
         int delay = orientationUtils.backToProtVideo();
         handler.postDelayed(new Runnable() {
             @Override
@@ -308,8 +305,6 @@ public class ListVideoUtil {
      */
     private void resolveMaterialToNormal(final GSYVideoPlayer gsyVideoPlayer) {
         if (showFullAnimation && fullViewContainer instanceof FrameLayout) {
-            // ------- ！！！如果不需要旋转屏幕，可以不调用！！！-------
-            // 不需要屏幕旋转，还需要设置 setNeedOrientationUtils(false)
             int delay = orientationUtils.backToProtVideo();
             handler.postDelayed(new Runnable() {
                 @Override
@@ -344,8 +339,6 @@ public class ListVideoUtil {
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    // ------- ！！！如果不需要旋转屏幕，可以不调用！！！-------
-                    // 不需要屏幕旋转，还需要设置 setNeedOrientationUtils(false)
                     if (orientationUtils.getIsLand() != 1) {
                         orientationUtils.resolveByClick();
                     }
@@ -557,7 +550,7 @@ public class ListVideoUtil {
     /**
      * 获取当前总时长
      */
-    public long getDuration() {
+    public int getDuration() {
         return gsyVideoPlayer.getDuration();
     }
 
@@ -604,7 +597,7 @@ public class ListVideoUtil {
     /**
      * 获取当前播放进度
      */
-    public long getCurrentPositionWhenPlaying() {
+    public int getCurrentPositionWhenPlaying() {
         return gsyVideoPlayer.getCurrentPositionWhenPlaying();
     }
 

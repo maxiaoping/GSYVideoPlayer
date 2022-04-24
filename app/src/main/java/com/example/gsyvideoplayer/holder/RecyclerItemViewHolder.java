@@ -9,6 +9,8 @@ import com.example.gsyvideoplayer.R;
 import com.example.gsyvideoplayer.model.VideoModel;
 import com.shuyu.gsyvideoplayer.utils.GSYVideoHelper;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 /**
  * Created by GUO on 2015/12/3.
@@ -17,10 +19,12 @@ public class RecyclerItemViewHolder extends RecyclerItemBaseHolder {
 
     public final static String TAG = "RecyclerView2List";
 
-    protected Context context ;
+    protected Context context = null;
 
+    @BindView(R.id.list_item_container)
     FrameLayout listItemContainer;
 
+    @BindView(R.id.list_item_btn)
     ImageView listItemBtn;
 
     ImageView imageView;
@@ -32,8 +36,7 @@ public class RecyclerItemViewHolder extends RecyclerItemBaseHolder {
     public RecyclerItemViewHolder(Context context, View v) {
         super(v);
         this.context = context;
-        listItemContainer = v.findViewById(R.id.list_item_container);
-        listItemBtn = v.findViewById(R.id.list_item_btn);
+        ButterKnife.bind(this, v);
         imageView = new ImageView(context);
     }
 
@@ -48,14 +51,14 @@ public class RecyclerItemViewHolder extends RecyclerItemBaseHolder {
         listItemBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                smallVideoHelper.setPlayPositionAndTag(position, TAG);
                 getRecyclerBaseAdapter().notifyDataSetChanged();
                 //listVideoUtil.setLoop(true);
+                smallVideoHelper.setPlayPositionAndTag(position, TAG);
                 String url;
                 if (position % 2 == 0) {
                     url = "https://res.exexm.com/cw_145225549855002";
                 } else {
-                    url = "http://7xjmzj.com1.z0.glb.clouddn.com/20171026175005_JObCxCE2.mp4";
+                    url = "http://7xse1z.com1.z0.glb.clouddn.com/1491813192";
                 }
                 //listVideoUtil.setCachePath(new File(FileUtils.getPath()));
 

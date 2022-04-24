@@ -75,7 +75,7 @@ public class PreViewGSYVideoPlayer extends NormalGSYVideoPlayer {
         super.onProgressChanged(seekBar, progress, fromUser);
         if (fromUser && mOpenPreView) {
             int width = seekBar.getWidth();
-            long time = progress * getDuration() / 100;
+            int time = progress * getDuration() / 100;
             int offset = (int) (width - (getResources().getDimension(R.dimen.seek_bar_image) / 2)) / 100 * progress;
             Debuger.printfError("***************** " + progress);
             Debuger.printfError("***************** " + time);
@@ -168,7 +168,7 @@ public class PreViewGSYVideoPlayer extends NormalGSYVideoPlayer {
 
     private void startDownFrame(String url) {
         for (int i = 1; i <= 100; i++) {
-            long time = i * getDuration() / 100;
+            int time = i * getDuration() / 100;
             int width = CommonUtil.dip2px(getContext(), 150);
             int height = CommonUtil.dip2px(getContext(), 100);
             Glide.with(getContext().getApplicationContext())

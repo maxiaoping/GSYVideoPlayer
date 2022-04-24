@@ -1,21 +1,24 @@
 package com.example.gsyvideoplayer.switchplay;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.view.ViewCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.app.ActivityOptionsCompat;
-import androidx.core.view.ViewCompat;
+import android.widget.ImageView;
 
 import com.example.gsyvideoplayer.R;
 import com.shuyu.gsyvideoplayer.GSYVideoManager;
+import com.shuyu.gsyvideoplayer.builder.GSYVideoOptionBuilder;
 import com.shuyu.gsyvideoplayer.listener.GSYSampleCallBack;
+import com.shuyu.gsyvideoplayer.listener.LockClickListener;
 import com.shuyu.gsyvideoplayer.utils.OrientationUtils;
+import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer;
 
 /**
  * 切换详情
@@ -27,7 +30,7 @@ public class SwitchDetailActivity extends AppCompatActivity {
 
     SwitchVideo detailPlayer;
 
-    private final boolean isPlay = true;
+    private boolean isPlay = true;
     private boolean isPause;
 
     private OrientationUtils orientationUtils;
@@ -67,14 +70,12 @@ public class SwitchDetailActivity extends AppCompatActivity {
                     public void onPrepared(String url, Object... objects) {
                         super.onPrepared(url, objects);
                         //开始播放了才能旋转和全屏
-                        orientationUtils.setEnable(detailPlayer.isRotateWithSystem());
+                        orientationUtils.setEnable(true);
                     }
 
                     @Override
                     public void onQuitFullscreen(String url, Object... objects) {
                         super.onQuitFullscreen(url, objects);
-                        // ------- ！！！如果不需要旋转屏幕，可以不调用！！！-------
-                        // 不需要屏幕旋转，还需要设置 setNeedOrientationUtils(false)
                         if (orientationUtils != null) {
                             orientationUtils.backToProtVideo();
                         }
@@ -85,8 +86,6 @@ public class SwitchDetailActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //直接横屏
-                // ------- ！！！如果不需要旋转屏幕，可以不调用！！！-------
-                // 不需要屏幕旋转，还需要设置 setNeedOrientationUtils(false)
                 orientationUtils.resolveByClick();
                 //第一个true是否需要隐藏actionbar，第二个true是否需要隐藏statusbar
                 detailPlayer.startWindowFullscreen(SwitchDetailActivity.this, true, true);
@@ -102,8 +101,6 @@ public class SwitchDetailActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        // ------- ！！！如果不需要旋转屏幕，可以不调用！！！-------
-        // 不需要屏幕旋转，还需要设置 setNeedOrientationUtils(false)
         if (orientationUtils != null) {
             orientationUtils.backToProtVideo();
         }
@@ -141,11 +138,9 @@ public class SwitchDetailActivity extends AppCompatActivity {
     }
 
 
-    /**
-     * orientationUtils 和  detailPlayer.onConfigurationChanged 方法是用于触发屏幕旋转的
-     */
+
     @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+    public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         //如果旋转了就全屏
         if (isPlay && !isPause) {

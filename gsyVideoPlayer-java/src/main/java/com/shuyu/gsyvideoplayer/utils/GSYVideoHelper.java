@@ -20,12 +20,11 @@ import com.shuyu.gsyvideoplayer.render.view.GSYVideoGLView;
 import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer;
 import com.shuyu.gsyvideoplayer.video.base.GSYBaseVideoPlayer;
 import com.shuyu.gsyvideoplayer.video.base.GSYVideoPlayer;
+import com.transitionseverywhere.TransitionManager;
 
 
 import java.io.File;
 import java.util.Map;
-
-import androidx.transition.TransitionManager;
 
 import static com.shuyu.gsyvideoplayer.utils.CommonUtil.getActionBarHeight;
 import static com.shuyu.gsyvideoplayer.utils.CommonUtil.getStatusBarHeight;
@@ -66,10 +65,6 @@ public class GSYVideoHelper {
      * 选择工具类
      */
     private OrientationUtils mOrientationUtils;
-    /**
-     * 可配置旋转 OrientationUtils
-     */
-    private OrientationOption mOrientationOption;
     /**
      * 播放配置
      */
@@ -139,7 +134,7 @@ public class GSYVideoHelper {
         mGsyVideoPlayer.getFullscreenButton().setImageResource(mGsyVideoPlayer.getShrinkImageRes());
         mGsyVideoPlayer.getBackButton().setVisibility(View.VISIBLE);
         //设置旋转
-        mOrientationUtils = new OrientationUtils((Activity) mContext, mGsyVideoPlayer, mOrientationOption);
+        mOrientationUtils = new OrientationUtils((Activity) mContext, mGsyVideoPlayer);
         mOrientationUtils.setEnable(mVideoOptionBuilder.isRotateViewAuto());
         mGsyVideoPlayer.getBackButton().setOnClickListener(new View.OnClickListener() {
             @Override
@@ -228,8 +223,6 @@ public class GSYVideoHelper {
      * 处理正常逻辑
      */
     private void resolveToNormal() {
-        // ------- ！！！如果不需要旋转屏幕，可以不调用！！！-------
-        // 不需要屏幕旋转，还需要设置 setNeedOrientationUtils(false)
         int delay = mOrientationUtils.backToProtVideo();
         if (!mVideoOptionBuilder.isShowFullAnimation()) {
             delay = 0;
@@ -254,7 +247,6 @@ public class GSYVideoHelper {
                 mGsyVideoPlayer.getFullscreenButton().setImageResource(mGsyVideoPlayer.getEnlargeImageRes());
                 mGsyVideoPlayer.getBackButton().setVisibility(View.GONE);
                 mGsyVideoPlayer.setIfCurrentIsFullscreen(false);
-                mGsyVideoPlayer.restartTimerTask();
                 if (mVideoOptionBuilder.getVideoAllCallBack() != null) {
                     Debuger.printfLog("onQuitFullscreen");
                     mVideoOptionBuilder.getVideoAllCallBack().onQuitFullscreen(mVideoOptionBuilder.getUrl(), mVideoOptionBuilder.getVideoTitle(), mGsyVideoPlayer);
@@ -273,9 +265,6 @@ public class GSYVideoHelper {
      */
     private void resolveMaterialToNormal(final GSYVideoPlayer gsyVideoPlayer) {
         if (mVideoOptionBuilder.isShowFullAnimation() && mFullViewContainer instanceof FrameLayout) {
-
-            // ------- ！！！如果不需要旋转屏幕，可以不调用！！！-------
-            // 不需要屏幕旋转，还需要设置 setNeedOrientationUtils(false)
             int delay = mOrientationUtils.backToProtVideo();
             mHandler.postDelayed(new Runnable() {
                 @Override
@@ -315,8 +304,6 @@ public class GSYVideoHelper {
                             if (mFullViewContainer != null) {
                                 mFullViewContainer.setBackgroundColor(Color.BLACK);
                             }
-                            // ------- ！！！如果不需要旋转屏幕，可以不调用！！！-------
-                            // 不需要屏幕旋转，还需要设置 setNeedOrientationUtils(false)
                             mOrientationUtils.resolveByClick();
                         }
                     }
@@ -326,14 +313,11 @@ public class GSYVideoHelper {
                     if (mFullViewContainer != null) {
                         mFullViewContainer.setBackgroundColor(Color.BLACK);
                     }
-                    // ------- ！！！如果不需要旋转屏幕，可以不调用！！！-------
-                    // 不需要屏幕旋转，还需要设置 setNeedOrientationUtils(false)
                     mOrientationUtils.resolveByClick();
                 }
             }
         }
         mGsyVideoPlayer.setIfCurrentIsFullscreen(true);
-        mGsyVideoPlayer.restartTimerTask();
         if (mVideoOptionBuilder.getVideoAllCallBack() != null) {
             Debuger.printfLog("onEnterFullscreen");
             mVideoOptionBuilder.getVideoAllCallBack().onEnterFullscreen(mVideoOptionBuilder.getUrl(), mVideoOptionBuilder.getVideoTitle(), mGsyVideoPlayer);
@@ -529,13 +513,6 @@ public class GSYVideoHelper {
      */
     public void setFullViewContainer(ViewGroup fullViewContainer) {
         this.mFullViewContainer = fullViewContainer;
-    }
-
-    /**
-     * 可配置旋转 OrientationUtils
-     */
-    public void setOrientationOption(OrientationOption orientationOption) {
-        this.mOrientationOption = orientationOption;
     }
 
     /**

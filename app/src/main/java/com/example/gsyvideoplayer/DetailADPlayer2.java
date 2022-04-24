@@ -21,9 +21,9 @@ public class DetailADPlayer2 extends GSYBaseADActivityDetail<NormalGSYVideoPlaye
 
     private GSYADVideoPlayer adPlayer;
 
-    private String urlAd = "http://7xjmzj.com1.z0.glb.clouddn.com/20171026175005_JObCxCE2.mp4";
+    private String urlAd = "http://video.7k.cn/app_video/20171202/6c8cf3ea/v.m3u8.mp4";
 
-    private String urlAd2 = "http://7xjmzj.com1.z0.glb.clouddn.com/20171026175005_JObCxCE2.mp4";
+    private String urlAd2 = "http://video.7k.cn/app_video/20171202/6c8cf3ea/v.m3u8.mp4";
 
     private String url = "http://9890.vod.myqcloud.com/9890_4e292f9a3dd011e6b4078980237cc3d3.f20.mp4";
 
@@ -53,11 +53,11 @@ public class DetailADPlayer2 extends GSYBaseADActivityDetail<NormalGSYVideoPlaye
         detailPlayer.setReleaseWhenLossAudio(false);
 
         detailPlayer.setGSYVideoProgressListener(new GSYVideoProgressListener() {
-            private long preSecond = 0;
+            private int preSecond = 0;
             @Override
-            public void onProgress(long progress, long secProgress, long currentPosition, long duration) {
+            public void onProgress(int progress, int secProgress, int currentPosition, int duration) {
                 //在5秒的时候弹出中间广告
-                long currentSecond = currentPosition / 1000;
+                int currentSecond = currentPosition / 1000;
                 if (currentSecond == 5 && currentSecond != preSecond) {
                     detailPlayer.getCurrentPlayer().onVideoPause();
                     getGSYADVideoOptionBuilder().setUrl(urlAd2).build(adPlayer);
@@ -103,7 +103,6 @@ public class DetailADPlayer2 extends GSYBaseADActivityDetail<NormalGSYVideoPlaye
 
     /**
      * 需要片头广告
-     * 如果返回 false ，setStartAfterPrepared 需要设置为 ture
      */
     @Override
     public boolean isNeedAdOnStart() {

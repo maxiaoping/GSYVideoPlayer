@@ -4,40 +4,31 @@ import android.Manifest;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
+import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.example.gsyvideoplayer.R;
-import com.example.gsyvideoplayer.databinding.ActivitySimpleBinding;
+import com.example.gsyvideoplayer.utils.JumpUtils;
+import com.shuyu.gsyvideoplayer.GSYVideoManager;
+import com.shuyu.gsyvideoplayer.utils.Debuger;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import permissions.dispatcher.PermissionUtils;
 
-public class SimpleActivity extends AppCompatActivity implements View.OnClickListener {
+public class SimpleActivity extends AppCompatActivity {
 
     final String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
-    ActivitySimpleBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
-        binding = ActivitySimpleBinding.inflate(getLayoutInflater());
-
-        View rootView = binding.getRoot();
-        setContentView(rootView);
-
-
-        binding.simpleDetail1.setOnClickListener(this);
-        binding.simpleDetail2.setOnClickListener(this);
-        binding.simpleList1.setOnClickListener(this);
-        binding.simpleList2.setOnClickListener(this);
-        binding.simplePlayer.setOnClickListener(this);
-
+        setContentView(R.layout.activity_simple);
+        ButterKnife.bind(this);
         boolean hadPermission = PermissionUtils.hasSelfPermissions(this, permissions);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !hadPermission) {
             String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
@@ -54,8 +45,7 @@ public class SimpleActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
-
-    @Override
+    @OnClick({R.id.simple_list_1, R.id.simple_list_2, R.id.simple_detail_1, R.id.simple_detail_2, R.id.simple_player})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.simple_player:

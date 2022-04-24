@@ -5,11 +5,13 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
+import android.support.annotation.RequiresApi;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.animation.BounceInterpolator;
-import com.example.gsyvideoplayer.databinding.ActivityWindowBinding;
+import android.widget.Button;
+
+
 import com.example.gsyvideoplayer.utils.floatUtil.FloatWindow;
 import com.example.gsyvideoplayer.utils.floatUtil.MoveType;
 import com.example.gsyvideoplayer.utils.floatUtil.Screen;
@@ -17,31 +19,30 @@ import com.example.gsyvideoplayer.utils.floatUtil.Util;
 import com.example.gsyvideoplayer.view.FloatPlayerView;
 import com.shuyu.gsyvideoplayer.GSYVideoManager;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
 /**
  * 多窗体下的悬浮窗页面
  */
-public class WindowActivity extends AppCompatActivity implements  View.OnClickListener {
+public class WindowActivity extends AppCompatActivity {
 
-    ActivityWindowBinding binding;
+    @BindView(R.id.start_window)
+    Button startWindow;
+    @BindView(R.id.jump_other)
+    Button jumpOther;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        binding = ActivityWindowBinding.inflate(getLayoutInflater());
-
-        View rootView = binding.getRoot();
-        setContentView(rootView);
-
-
+        setContentView(R.layout.activity_window);
+        ButterKnife.bind(this);
         if (Build.VERSION.SDK_INT >= 23) {
             if (!Util.hasPermission(this)) {
                 requestAlertWindowPermission();
             }
         }
-
-        binding.jumpOther.setOnClickListener(this);
-        binding.startWindow.setOnClickListener(this);
     }
 
     @Override
@@ -75,8 +76,8 @@ public class WindowActivity extends AppCompatActivity implements  View.OnClickLi
         }
     }
 
-    @Override
-    public void onClick(View view) {
+    @OnClick({R.id.start_window, R.id.jump_other})
+    public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.start_window:
                 if (FloatWindow.get() != null) {

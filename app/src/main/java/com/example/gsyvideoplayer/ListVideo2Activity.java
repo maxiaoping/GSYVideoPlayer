@@ -3,9 +3,8 @@ package com.example.gsyvideoplayer;
 import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.transition.Explode;
-import android.view.View;
 import android.view.Window;
 import android.widget.AbsListView;
 import android.widget.FrameLayout;
@@ -13,28 +12,28 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 
 import com.example.gsyvideoplayer.adapter.ListVideoAdapter;
-import com.example.gsyvideoplayer.databinding.ActivityListVideo2Binding;
-import com.example.gsyvideoplayer.databinding.ActivityListVideoBinding;
 import com.shuyu.gsyvideoplayer.GSYVideoManager;
 import com.shuyu.gsyvideoplayer.listener.GSYSampleCallBack;
 import com.shuyu.gsyvideoplayer.utils.GSYVideoHelper;
 import com.shuyu.gsyvideoplayer.utils.CommonUtil;
 import com.shuyu.gsyvideoplayer.utils.Debuger;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 /**
  * 列表小窗口
  */
 public class ListVideo2Activity extends AppCompatActivity {
 
-//    @BindView(R.id.video_list)
-//    ListView videoList;
-//
-//    @BindView(R.id.video_full_container)
-//    FrameLayout videoFullContainer;
-//
-//    @BindView(R.id.activity_list_video)
-//    RelativeLayout activityListVideo;
+    @BindView(R.id.video_list)
+    ListView videoList;
+
+    @BindView(R.id.video_full_container)
+    FrameLayout videoFullContainer;
+
+    @BindView(R.id.activity_list_video)
+    RelativeLayout activityListVideo;
 
     GSYVideoHelper smallVideoHelper;
 
@@ -45,7 +44,6 @@ public class ListVideo2Activity extends AppCompatActivity {
     int lastVisibleItem;
 
     int firstVisibleItem;
-    ActivityListVideo2Binding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,13 +54,8 @@ public class ListVideo2Activity extends AppCompatActivity {
             getWindow().setExitTransition(new Explode());
         }
         super.onCreate(savedInstanceState);
-
-
-        binding = ActivityListVideo2Binding.inflate(getLayoutInflater());
-
-        View rootView = binding.getRoot();
-        setContentView(rootView);
-
+        setContentView(R.layout.activity_list_video2);
+        ButterKnife.bind(this);
 
         //创建小窗口帮助类
         smallVideoHelper = new GSYVideoHelper(this);
@@ -107,10 +100,10 @@ public class ListVideo2Activity extends AppCompatActivity {
         smallVideoHelper.setGsyVideoOptionBuilder(gsySmallVideoHelperBuilder);
 
         listVideoAdapter = new ListVideoAdapter(this, smallVideoHelper, gsySmallVideoHelperBuilder);
-        listVideoAdapter.setRootView(binding.activityListVideo);
-        binding.videoList.setAdapter(listVideoAdapter);
+        listVideoAdapter.setRootView(activityListVideo);
+        videoList.setAdapter(listVideoAdapter);
 
-        binding.videoList.setOnScrollListener(new AbsListView.OnScrollListener() {
+        videoList.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
             }

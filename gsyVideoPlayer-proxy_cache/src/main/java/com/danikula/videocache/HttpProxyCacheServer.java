@@ -1,8 +1,5 @@
 package com.danikula.videocache;
 
-import static com.danikula.videocache.Preconditions.checkAllNotNull;
-import static com.danikula.videocache.Preconditions.checkNotNull;
-
 import android.content.Context;
 import android.net.Uri;
 
@@ -29,8 +26,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.TrustManager;
+import static com.danikula.videocache.Preconditions.checkAllNotNull;
+import static com.danikula.videocache.Preconditions.checkNotNull;
 
 /**
  * Simple lightweight proxy server with file caching support that handles HTTP requests.
@@ -279,7 +276,7 @@ public class HttpProxyCacheServer {
             // There is no way to determine that client closed connection http://stackoverflow.com/a/10241044/999458
             // So just to prevent log flooding don't log stacktrace
         } catch (IOException e) {
-            // onError(new ProxyCacheException("Error closing socket input stream", e));
+           // onError(new ProxyCacheException("Error closing socket input stream", e));
         }
     }
 
@@ -346,10 +343,8 @@ public class HttpProxyCacheServer {
         private File cacheRoot;
         private FileNameGenerator fileNameGenerator;
         private DiskUsage diskUsage;
-        private final SourceInfoStorage sourceInfoStorage;
+        private SourceInfoStorage sourceInfoStorage;
         private HeaderInjector headerInjector;
-        private HostnameVerifier v;
-        private TrustManager[] trustAllCerts;
 
         public Builder(Context context) {
             this.sourceInfoStorage = SourceInfoStorageFactory.newSourceInfoStorage(context);
@@ -438,18 +433,6 @@ public class HttpProxyCacheServer {
             return this;
         }
 
-
-        public Builder hostnameVerifier(HostnameVerifier v) {
-            this.v = v;
-            return this;
-        }
-
-
-        public Builder trustAllCerts(TrustManager[] trustAllCerts) {
-            this.trustAllCerts = trustAllCerts;
-            return this;
-        }
-
         /**
          * Builds new instance of {@link HttpProxyCacheServer}.
          *
@@ -461,7 +444,7 @@ public class HttpProxyCacheServer {
         }
 
         private Config buildConfig() {
-            return new Config(cacheRoot, fileNameGenerator, diskUsage, sourceInfoStorage, headerInjector, v, trustAllCerts);
+            return new Config(cacheRoot, fileNameGenerator, diskUsage, sourceInfoStorage, headerInjector);
         }
 
     }

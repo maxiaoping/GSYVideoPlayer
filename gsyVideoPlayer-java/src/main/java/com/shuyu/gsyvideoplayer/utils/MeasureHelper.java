@@ -6,7 +6,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      https://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -75,31 +75,18 @@ public final class MeasureHelper {
 
         mCurrentAspectRatio = GSYVideoType.getShowType();
 
-        if (mVideoHeight == 0 || mVideoWidth == 0) {
-            mMeasuredWidth = 1;
-            mMeasuredHeight = 1;
-            return;
-        }
-
         if (mVideoRotationDegree == 90 || mVideoRotationDegree == 270) {
             int tempSpec = widthMeasureSpec;
             widthMeasureSpec = heightMeasureSpec;
             heightMeasureSpec = tempSpec;
         }
 
-        int realWidth = mVideoWidth;
-
-        if(mVideoSarNum != 0 && mVideoSarDen != 0) {
-            double pixelWidthHeightRatio = mVideoSarNum / (mVideoSarDen / 1.0);
-            realWidth = (int) (pixelWidthHeightRatio * mVideoWidth);
-        }
-
-        int width = View.getDefaultSize(realWidth, widthMeasureSpec);
+        int width = View.getDefaultSize(mVideoWidth, widthMeasureSpec);
         int height = View.getDefaultSize(mVideoHeight, heightMeasureSpec);
         if (mCurrentAspectRatio == GSYVideoType.SCREEN_MATCH_FULL) {
             width = widthMeasureSpec;
             height = heightMeasureSpec;
-        } else if (realWidth > 0 && mVideoHeight > 0) {
+        } else if (mVideoWidth > 0 && mVideoHeight > 0) {
             int widthSpecMode = View.MeasureSpec.getMode(widthMeasureSpec);
             int widthSpecSize = View.MeasureSpec.getSize(widthMeasureSpec);
             int heightSpecMode = View.MeasureSpec.getMode(heightMeasureSpec);
@@ -114,18 +101,8 @@ public final class MeasureHelper {
                         if (mVideoRotationDegree == 90 || mVideoRotationDegree == 270)
                             displayAspectRatio = 1.0f / displayAspectRatio;
                         break;
-                    case GSYVideoType.SCREEN_TYPE_18_9:
-                        displayAspectRatio = 18.0f / 9.0f;
-                        if (mVideoRotationDegree == 90 || mVideoRotationDegree == 270)
-                            displayAspectRatio = 1.0f / displayAspectRatio;
-                        break;
                     case GSYVideoType.SCREEN_TYPE_4_3:
                         displayAspectRatio = 4.0f / 3.0f;
-                        if (mVideoRotationDegree == 90 || mVideoRotationDegree == 270)
-                            displayAspectRatio = 1.0f / displayAspectRatio;
-                        break;
-                    case GSYVideoType.SCREEN_TYPE_CUSTOM:
-                        displayAspectRatio = GSYVideoType.getScreenScaleRatio();
                         if (mVideoRotationDegree == 90 || mVideoRotationDegree == 270)
                             displayAspectRatio = 1.0f / displayAspectRatio;
                         break;
@@ -133,7 +110,7 @@ public final class MeasureHelper {
                     case GSYVideoType.SCREEN_TYPE_FULL:
                         //case GSYVideoType.AR_ASPECT_WRAP_CONTENT:
                     default:
-                        displayAspectRatio = (float) realWidth / (float) mVideoHeight;
+                        displayAspectRatio = (float) mVideoWidth / (float) mVideoHeight;
                         if (mVideoSarNum > 0 && mVideoSarDen > 0)
                             displayAspectRatio = displayAspectRatio * mVideoSarNum / mVideoSarDen;
                         break;
@@ -144,8 +121,6 @@ public final class MeasureHelper {
                     case GSYVideoType.SCREEN_TYPE_DEFAULT:
                     case GSYVideoType.SCREEN_TYPE_16_9:
                     case GSYVideoType.SCREEN_TYPE_4_3:
-                    case GSYVideoType.SCREEN_TYPE_18_9:
-                    case GSYVideoType.SCREEN_TYPE_CUSTOM:
                         if (shouldBeWider) {
                             // too wide, fix width
                             width = widthSpecSize;
@@ -171,7 +146,7 @@ public final class MeasureHelper {
                     default:
                         if (shouldBeWider) {
                             // too wide, fix width
-                            width = Math.min(realWidth, widthSpecSize);
+                            width = Math.min(mVideoWidth, widthSpecSize);
                             height = (int) (width / displayAspectRatio);
                         } else {
                             // too high, fix height
@@ -186,17 +161,17 @@ public final class MeasureHelper {
                 height = heightSpecSize;
 
                 // for compatibility, we adjust size based on aspect ratio
-                if (realWidth * height < width * mVideoHeight) {
+                if (mVideoWidth * height < width * mVideoHeight) {
                     //Log.i("@@@", "image too wide, correcting");
-                    width = height * realWidth / mVideoHeight;
-                } else if (realWidth * height > width * mVideoHeight) {
+                    width = height * mVideoWidth / mVideoHeight;
+                } else if (mVideoWidth * height > width * mVideoHeight) {
                     //Log.i("@@@", "image too tall, correcting");
-                    height = width * mVideoHeight / realWidth;
+                    height = width * mVideoHeight / mVideoWidth;
                 }
             } else if (widthSpecMode == View.MeasureSpec.EXACTLY) {
                 // only the width is fixed, adjust the height to match aspect ratio if possible
                 width = widthSpecSize;
-                height = width * mVideoHeight / realWidth;
+                height = width * mVideoHeight / mVideoWidth;
                 if (heightSpecMode == View.MeasureSpec.AT_MOST && height > heightSpecSize) {
                     // couldn't match aspect ratio within the constraints
                     height = heightSpecSize;
@@ -204,24 +179,24 @@ public final class MeasureHelper {
             } else if (heightSpecMode == View.MeasureSpec.EXACTLY) {
                 // only the height is fixed, adjust the width to match aspect ratio if possible
                 height = heightSpecSize;
-                width = height * realWidth / mVideoHeight;
+                width = height * mVideoWidth / mVideoHeight;
                 if (widthSpecMode == View.MeasureSpec.AT_MOST && width > widthSpecSize) {
                     // couldn't match aspect ratio within the constraints
                     width = widthSpecSize;
                 }
             } else {
                 // neither the width nor the height are fixed, try to use actual video size
-                width = realWidth;
+                width = mVideoWidth;
                 height = mVideoHeight;
                 if (heightSpecMode == View.MeasureSpec.AT_MOST && height > heightSpecSize) {
                     // too tall, decrease both width and height
                     height = heightSpecSize;
-                    width = height * realWidth / mVideoHeight;
+                    width = height * mVideoWidth / mVideoHeight;
                 }
                 if (widthSpecMode == View.MeasureSpec.AT_MOST && width > widthSpecSize) {
                     // too wide, decrease both width and height
                     width = widthSpecSize;
-                    height = width * mVideoHeight / realWidth;
+                    height = width * mVideoHeight / mVideoWidth;
                 }
             }
         } else {

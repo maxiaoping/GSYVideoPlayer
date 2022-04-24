@@ -1,7 +1,5 @@
 package com.danikula.videocache;
 
-import static com.danikula.videocache.ProxyCacheUtils.DEFAULT_BUFFER_SIZE;
-
 import android.text.TextUtils;
 
 import com.danikula.videocache.file.FileCache;
@@ -10,8 +8,9 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 import java.util.Locale;
+
+import static com.danikula.videocache.ProxyCacheUtils.DEFAULT_BUFFER_SIZE;
 
 /**
  * {@link ProxyCache} that read http url and writes data to {@link Socket}
@@ -39,7 +38,7 @@ class HttpProxyCache extends ProxyCache {
     public void processRequest(GetRequest request, Socket socket) throws IOException, ProxyCacheException {
         OutputStream out = new BufferedOutputStream(socket.getOutputStream());
         String responseHeaders = newResponseHeaders(request);
-        out.write(responseHeaders.getBytes(StandardCharsets.UTF_8));
+        out.write(responseHeaders.getBytes("UTF-8"));
 
         long offset = request.rangeOffset;
         if (isUseCache(request)) {
@@ -64,13 +63,14 @@ class HttpProxyCache extends ProxyCache {
         boolean lengthKnown = length >= 0;
         long contentLength = request.partial ? length - request.rangeOffset : length;
         boolean addRange = lengthKnown && request.partial;
-        return (request.partial ? "HTTP/1.1 206 PARTIAL CONTENT\n" : "HTTP/1.1 200 OK\n") +
-            "Accept-Ranges: bytes\n" +
-            (lengthKnown ? format("Content-Length: %d\n", contentLength) : "") +
-            (addRange ? format("Content-Range: bytes %d-%d/%d\n", request.rangeOffset, length - 1, length) : "") +
-            (mimeKnown ? format("Content-Type: %s\n", mime) : "") +
-            "\n" // headers end
-            ;
+        return new StringBuilder()
+                .append(request.partial ? "HTTP/1.1 206 PARTIAL CONTENT\n" : "HTTP/1.1 200 OK\n")
+                .append("Accept-Ranges: bytes\n")
+                .append(lengthKnown ? format("Content-Length: %d\n", contentLength) : "")
+                .append(addRange ? format("Content-Range: bytes %d-%d/%d\n", request.rangeOffset, length - 1, length) : "")
+                .append(mimeKnown ? format("Content-Type: %s\n", mime) : "")
+                .append("\n") // headers end
+                .toString();
     }
 
     private void responseWithCache(OutputStream out, long offset) throws ProxyCacheException, IOException {

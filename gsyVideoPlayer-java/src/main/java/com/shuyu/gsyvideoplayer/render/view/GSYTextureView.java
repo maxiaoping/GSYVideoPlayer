@@ -17,7 +17,6 @@ import com.shuyu.gsyvideoplayer.render.glrender.GSYVideoGLViewBaseRender;
 import com.shuyu.gsyvideoplayer.render.view.listener.IGSYSurfaceListener;
 import com.shuyu.gsyvideoplayer.utils.Debuger;
 import com.shuyu.gsyvideoplayer.utils.FileUtils;
-import com.shuyu.gsyvideoplayer.utils.GSYVideoType;
 import com.shuyu.gsyvideoplayer.utils.MeasureHelper;
 
 import java.io.File;
@@ -35,7 +34,6 @@ public class GSYTextureView extends TextureView implements TextureView.SurfaceTe
 
     private MeasureHelper measureHelper;
 
-    private SurfaceTexture mSaveTexture;
     private Surface mSurface;
 
     public GSYTextureView(Context context) {
@@ -60,21 +58,9 @@ public class GSYTextureView extends TextureView implements TextureView.SurfaceTe
 
     @Override
     public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
-        if (GSYVideoType.isMediaCodecTexture()) {
-            if (mSaveTexture == null) {
-                mSaveTexture = surface;
-                mSurface = new Surface(surface);
-            } else {
-                setSurfaceTexture(mSaveTexture);
-            }
-            if (mIGSYSurfaceListener != null) {
-                mIGSYSurfaceListener.onSurfaceAvailable(mSurface);
-            }
-        } else {
-            mSurface = new Surface(surface);
-            if (mIGSYSurfaceListener != null) {
-                mIGSYSurfaceListener.onSurfaceAvailable(mSurface);
-            }
+        mSurface = new Surface(surface);
+        if (mIGSYSurfaceListener != null) {
+            mIGSYSurfaceListener.onSurfaceAvailable(mSurface);
         }
     }
 
@@ -87,16 +73,11 @@ public class GSYTextureView extends TextureView implements TextureView.SurfaceTe
 
     @Override
     public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
-
         //清空释放
         if (mIGSYSurfaceListener != null) {
             mIGSYSurfaceListener.onSurfaceDestroyed(mSurface);
         }
-        if (GSYVideoType.isMediaCodecTexture()) {
-            return (mSaveTexture == null);
-        } else {
-            return true;
-        }
+        return true;
     }
 
     @Override

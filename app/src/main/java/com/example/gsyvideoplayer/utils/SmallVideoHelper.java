@@ -21,13 +21,12 @@ import com.shuyu.gsyvideoplayer.utils.*;
 import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer;
 import com.shuyu.gsyvideoplayer.video.base.GSYBaseVideoPlayer;
 import com.shuyu.gsyvideoplayer.video.base.GSYVideoPlayer;
+import com.transitionseverywhere.TransitionManager;
 import com.shuyu.gsyvideoplayer.utils.CommonUtil;
 
 
 import java.io.File;
 import java.util.Map;
-
-import androidx.transition.TransitionManager;
 
 import static com.shuyu.gsyvideoplayer.utils.CommonUtil.getActionBarHeight;
 import static com.shuyu.gsyvideoplayer.utils.CommonUtil.getStatusBarHeight;
@@ -226,8 +225,6 @@ public class SmallVideoHelper {
      * 处理正常逻辑
      */
     private void resolveToNormal() {
-        // ------- ！！！如果不需要旋转屏幕，可以不调用！！！-------
-        // 不需要屏幕旋转，还需要设置 setNeedOrientationUtils(false)
         int delay = orientationUtils.backToProtVideo();
         if (!gsyVideoOptionBuilder.isShowFullAnimation()) {
             delay = 0;
@@ -270,8 +267,6 @@ public class SmallVideoHelper {
      */
     private void resolveMaterialToNormal(final GSYVideoPlayer gsyVideoPlayer) {
         if (gsyVideoOptionBuilder.isShowFullAnimation() && fullViewContainer instanceof FrameLayout) {
-            // ------- ！！！如果不需要旋转屏幕，可以不调用！！！-------
-            // 不需要屏幕旋转，还需要设置 setNeedOrientationUtils(false)
             int delay = orientationUtils.backToProtVideo();
             handler.postDelayed(new Runnable() {
                 @Override
@@ -311,8 +306,6 @@ public class SmallVideoHelper {
                             if (fullViewContainer != null) {
                                 fullViewContainer.setBackgroundColor(Color.BLACK);
                             }
-                            // ------- ！！！如果不需要旋转屏幕，可以不调用！！！-------
-                            // 不需要屏幕旋转，还需要设置 setNeedOrientationUtils(false)
                             orientationUtils.resolveByClick();
                         }
                     }
@@ -322,8 +315,6 @@ public class SmallVideoHelper {
                     if (fullViewContainer != null) {
                         fullViewContainer.setBackgroundColor(Color.BLACK);
                     }
-                    // ------- ！！！如果不需要旋转屏幕，可以不调用！！！-------
-                    // 不需要屏幕旋转，还需要设置 setNeedOrientationUtils(false)
                     orientationUtils.resolveByClick();
                 }
             }

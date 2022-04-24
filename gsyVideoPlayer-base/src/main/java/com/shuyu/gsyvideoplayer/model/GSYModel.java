@@ -22,16 +22,13 @@ public class GSYModel {
 
     boolean isCache;
 
-    String overrideExtension;
-
-    public GSYModel(String url, Map<String, String> mapHeadData, boolean loop, float speed, boolean isCache, File cachePath, String overrideExtension) {
+    public GSYModel(String url, Map<String, String> mapHeadData, boolean loop, float speed, boolean isCache, File cachePath) {
         this.url = url;
         this.mapHeadData = mapHeadData;
         this.looping = loop;
         this.speed = speed;
         this.isCache = isCache;
         this.mCachePath = cachePath;
-        this.overrideExtension = overrideExtension;
     }
 
     public String getUrl() {
@@ -80,13 +77,5 @@ public class GSYModel {
 
     public void setCachePath(File cachePath) {
         this.mCachePath = cachePath;
-    }
-
-    public String getOverrideExtension() {
-        return overrideExtension;
-    }
-
-    public void setOverrideExtension(String overrideExtension) {
-        this.overrideExtension = overrideExtension;
     }
 }

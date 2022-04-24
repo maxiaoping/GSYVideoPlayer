@@ -6,33 +6,39 @@ import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.widget.NestedScrollView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.core.widget.NestedScrollView;
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.example.gsyvideoplayer.databinding.ActivityDetailControlBinding;
 import com.example.gsyvideoplayer.utils.CommonUtil;
 import com.example.gsyvideoplayer.utils.JumpUtils;
+import com.example.gsyvideoplayer.video.SampleControlVideo;
 import com.shuyu.gsyvideoplayer.GSYBaseActivityDetail;
+import com.shuyu.gsyvideoplayer.GSYVideoManager;
 import com.shuyu.gsyvideoplayer.builder.GSYVideoOptionBuilder;
 import com.shuyu.gsyvideoplayer.listener.GSYVideoGifSaveListener;
 import com.shuyu.gsyvideoplayer.listener.GSYVideoShotListener;
 import com.shuyu.gsyvideoplayer.listener.LockClickListener;
+import com.shuyu.gsyvideoplayer.model.VideoOptionModel;
 import com.shuyu.gsyvideoplayer.utils.Debuger;
 import com.shuyu.gsyvideoplayer.utils.FileUtils;
 import com.shuyu.gsyvideoplayer.utils.GifCreateHelper;
 import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer;
+import com.shuyu.gsyvideoplayer.video.base.GSYBaseVideoPlayer;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.OnNeverAskAgain;
 import permissions.dispatcher.OnPermissionDenied;
@@ -50,7 +56,35 @@ import permissions.dispatcher.RuntimePermissions;
 @RuntimePermissions
 public class DetailControlActivity extends GSYBaseActivityDetail<StandardGSYVideoPlayer> {
 
-    private final String url = "http://9890.vod.myqcloud.com/9890_4e292f9a3dd011e6b4078980237cc3d3.f20.mp4";
+    @BindView(R.id.post_detail_nested_scroll)
+    NestedScrollView postDetailNestedScroll;
+
+    @BindView(R.id.detail_player)
+    SampleControlVideo detailPlayer;
+
+    @BindView(R.id.activity_detail_player)
+    RelativeLayout activityDetailPlayer;
+
+    @BindView(R.id.change_speed)
+    Button changeSpeed;
+
+
+    @BindView(R.id.jump)
+    Button jump;
+
+    @BindView(R.id.shot)
+    Button shot;
+
+    @BindView(R.id.start_gif)
+    Button startGif;
+
+    @BindView(R.id.stop_gif)
+    Button stopGif;
+
+    @BindView(R.id.loadingView)
+    View loadingView;
+
+    private String url = "http://9890.vod.myqcloud.com/9890_4e292f9a3dd011e6b4078980237cc3d3.f20.mp4";
     //private String url = "http://livecdn1.news.cn/Live_MajorEvent01Phone/manifest.m3u8";
     //private String url = "https://ruigongkao.oss-cn-shenzhen.aliyuncs.com/transcode/video/source/video/8908d124aa839d0d3fa9593855ef5957.m3u8";
     //private String url2 = "http://ruigongkao.oss-cn-shenzhen.aliyuncs.com/transcode/video/source/video/3aca1a0db8db9418dcbc765848c8903e.m3u8";
@@ -59,18 +93,12 @@ public class DetailControlActivity extends GSYBaseActivityDetail<StandardGSYVide
     private GifCreateHelper mGifCreateHelper;
 
     private float speed = 1;
-    private ActivityDetailControlBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        binding = ActivityDetailControlBinding.inflate(getLayoutInflater());
-
-        View rootView = binding.getRoot();
-        setContentView(rootView);
-
-
+        setContentView(R.layout.activity_detail_control);
+        ButterKnife.bind(this);
 
         resolveNormalVideoUI();
 
@@ -78,7 +106,7 @@ public class DetailControlActivity extends GSYBaseActivityDetail<StandardGSYVide
 
         initGifHelper();
 
-        binding.detailPlayer.setLockClickListener(new LockClickListener() {
+        detailPlayer.setLockClickListener(new LockClickListener() {
             @Override
             public void onClick(View view, boolean lock) {
                 //if (orientationUtils != null) {
@@ -88,7 +116,7 @@ public class DetailControlActivity extends GSYBaseActivityDetail<StandardGSYVide
             }
         });
 
-        binding.changeSpeed.setOnClickListener(new View.OnClickListener() {
+        changeSpeed.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 resolveTypeUI();
@@ -104,7 +132,7 @@ public class DetailControlActivity extends GSYBaseActivityDetail<StandardGSYVide
         list.add(videoOptionModel);
         GSYVideoManager.instance().setOptionModelList(list);*/
 
-        binding.jump.setOnClickListener(new View.OnClickListener() {
+        jump.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 JumpUtils.gotoControl(DetailControlActivity.this);
@@ -112,7 +140,7 @@ public class DetailControlActivity extends GSYBaseActivityDetail<StandardGSYVide
             }
         });
 
-        binding.shot.setOnClickListener(new View.OnClickListener() {
+        shot.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 DetailControlActivityPermissionsDispatcher.shotImageWithPermissionCheck(DetailControlActivity.this, v);
@@ -120,21 +148,21 @@ public class DetailControlActivity extends GSYBaseActivityDetail<StandardGSYVide
         });
 
 
-        binding.startGif.setOnClickListener(new View.OnClickListener() {
+        startGif.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 DetailControlActivityPermissionsDispatcher.startGifWithPermissionCheck(DetailControlActivity.this);
             }
         });
 
-        binding.stopGif.setOnClickListener(new View.OnClickListener() {
+        stopGif.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 stopGif();
             }
         });
 
-        binding.loadingView.setOnClickListener(new View.OnClickListener() {
+        loadingView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //do nothing
@@ -144,7 +172,7 @@ public class DetailControlActivity extends GSYBaseActivityDetail<StandardGSYVide
 
     @Override
     public StandardGSYVideoPlayer getGSYVideoPlayer() {
-        return binding.detailPlayer;
+        return detailPlayer;
     }
 
     @Override
@@ -207,7 +235,7 @@ public class DetailControlActivity extends GSYBaseActivityDetail<StandardGSYVide
 
     //重载后关闭重力旋转
     @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+    public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         orientationUtils.setEnable(false);
     }
@@ -221,14 +249,14 @@ public class DetailControlActivity extends GSYBaseActivityDetail<StandardGSYVide
     /*******************************竖屏全屏结束************************************/
 
     private void initGifHelper() {
-        mGifCreateHelper = new GifCreateHelper(binding.detailPlayer, new GSYVideoGifSaveListener() {
+        mGifCreateHelper = new GifCreateHelper(detailPlayer, new GSYVideoGifSaveListener() {
             @Override
             public void result(boolean success, File file) {
-                binding.detailPlayer.post(new Runnable() {
+                detailPlayer.post(new Runnable() {
                     @Override
                     public void run() {
-                        binding.loadingView.setVisibility(View.GONE);
-                        Toast.makeText(binding.detailPlayer.getContext(), "创建成功", Toast.LENGTH_LONG).show();
+                        loadingView.setVisibility(View.GONE);
+                        Toast.makeText(detailPlayer.getContext(), "创建成功", Toast.LENGTH_LONG).show();
                     }
                 });
             }
@@ -255,7 +283,7 @@ public class DetailControlActivity extends GSYBaseActivityDetail<StandardGSYVide
      * 生成gif
      */
     void stopGif() {
-        binding.loadingView.setVisibility(View.VISIBLE);
+        loadingView.setVisibility(View.VISIBLE);
         mGifCreateHelper.stopGif(new File(FileUtils.getPath(), "GSY-Z-" + System.currentTimeMillis() + ".gif"));
     }
 
@@ -295,7 +323,7 @@ public class DetailControlActivity extends GSYBaseActivityDetail<StandardGSYVide
     @NeedsPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
     void shotImage(final View v) {
         //获取截图
-        binding.detailPlayer.taskShotPic(new GSYVideoShotListener() {
+        detailPlayer.taskShotPic(new GSYVideoShotListener() {
             @Override
             public void getBitmap(Bitmap bitmap) {
                 if (bitmap != null) {
@@ -334,8 +362,8 @@ public class DetailControlActivity extends GSYBaseActivityDetail<StandardGSYVide
 
     private void resolveNormalVideoUI() {
         //增加title
-        binding.detailPlayer.getTitleTextView().setVisibility(View.GONE);
-        binding.detailPlayer.getBackButton().setVisibility(View.GONE);
+        detailPlayer.getTitleTextView().setVisibility(View.GONE);
+        detailPlayer.getBackButton().setVisibility(View.GONE);
     }
 
     /**
@@ -354,13 +382,13 @@ public class DetailControlActivity extends GSYBaseActivityDetail<StandardGSYVide
         } else if (speed == 0.25f) {
             speed = 1;
         }
-        binding.changeSpeed.setText("播放速度：" + speed);
-        binding.detailPlayer.setSpeedPlaying(speed, true);
+        changeSpeed.setText("播放速度：" + speed);
+        detailPlayer.setSpeedPlaying(speed, true);
     }
 
 
     private void showToast(final String tip) {
-        binding.detailPlayer.post(new Runnable() {
+        detailPlayer.post(new Runnable() {
             @Override
             public void run() {
                 Toast.makeText(DetailControlActivity.this, tip, Toast.LENGTH_LONG).show();

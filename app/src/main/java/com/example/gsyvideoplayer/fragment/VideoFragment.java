@@ -2,20 +2,16 @@ package com.example.gsyvideoplayer.fragment;
 
 
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.gsyvideoplayer.R;
 import com.example.gsyvideoplayer.adapter.RecyclerBaseAdapter;
 import com.example.gsyvideoplayer.adapter.RecyclerNormalAdapter;
-import com.example.gsyvideoplayer.databinding.ActivityPlayPickBinding;
-import com.example.gsyvideoplayer.databinding.FragmentVideoBinding;
 import com.example.gsyvideoplayer.holder.RecyclerItemNormalHolder;
 import com.example.gsyvideoplayer.model.VideoModel;
 import com.shuyu.gsyvideoplayer.GSYVideoManager;
@@ -23,8 +19,14 @@ import com.shuyu.gsyvideoplayer.GSYVideoManager;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 public class VideoFragment extends Fragment {
+
+
+    @BindView(R.id.list_item_recycler)
+    RecyclerView videoList;
 
     LinearLayoutManager linearLayoutManager;
 
@@ -50,27 +52,26 @@ public class VideoFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_video, container, false);
 
-
-        RecyclerView listItemRecycler = view.findViewById(R.id.list_item_recycler);
+        ButterKnife.bind(this, view);
 
         resolveData();
 
         final RecyclerNormalAdapter recyclerNormalAdapter = new RecyclerNormalAdapter(getActivity(), dataList);
         linearLayoutManager = new LinearLayoutManager(getActivity());
-        listItemRecycler.setLayoutManager(linearLayoutManager);
-        listItemRecycler.setAdapter(recyclerNormalAdapter);
+        videoList.setLayoutManager(linearLayoutManager);
+        videoList.setAdapter(recyclerNormalAdapter);
 
-        listItemRecycler.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        videoList.addOnScrollListener(new RecyclerView.OnScrollListener() {
 
             int firstVisibleItem, lastVisibleItem;
 
             @Override
-            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
             }
 
             @Override
-            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 firstVisibleItem = linearLayoutManager.findFirstVisibleItemPosition();
                 lastVisibleItem = linearLayoutManager.findLastVisibleItemPosition();
@@ -80,9 +81,9 @@ public class VideoFragment extends Fragment {
                     int position = GSYVideoManager.instance().getPlayPosition();
                     //对应的播放列表TAG
                     if (GSYVideoManager.instance().getPlayTag().equals(RecyclerItemNormalHolder.TAG)
-                        && (position < firstVisibleItem || position > lastVisibleItem)) {
+                            && (position < firstVisibleItem || position > lastVisibleItem)) {
                         //如果滑出去了上面和下面就是否，和今日头条一样
-                        if (!GSYVideoManager.isFullState(getActivity())) {
+                        if(!GSYVideoManager.isFullState(getActivity())) {
                             GSYVideoManager.releaseAllVideos();
                             recyclerNormalAdapter.notifyDataSetChanged();
                         }
@@ -95,7 +96,10 @@ public class VideoFragment extends Fragment {
     }
 
     public boolean onBackPressed() {
-        return GSYVideoManager.backFromWindowFull(getActivity());
+        if (GSYVideoManager.backFromWindowFull(getActivity())) {
+            return true;
+        }
+        return false;
     }
 
     @Override

@@ -1,7 +1,42 @@
-apply from: "$rootDir/gradle/lib.gradle"
+apply plugin: 'com.android.library'
 
-apply from: "$rootDir/gradle/publish.gradle"
+android {
+
+    def globalConfiguration = rootProject.extensions.getByName("ext")
+    compileSdkVersion globalConfiguration.androidCompileSdkVersion
+    buildToolsVersion globalConfiguration.androidBuildToolsVersion
+
+    defaultConfig {
+
+        minSdkVersion globalConfiguration.androidMinSdkVersion
+        targetSdkVersion globalConfiguration.androidTargetSdkVersion
+
+        versionCode 1
+        versionName "1.0"
+
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+}
 
 dependencies {
-    api viewDependencies.ijkplayer
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    def viewDependencies = rootProject.ext.viewDependencies
+    api viewDependencies.ijkplayer_java
+
+    //compile fileTree(dir: 'libs', include: ['*.jar'])
+    //def viewDependencies = rootProject.ext.viewDependencies
+    //compile viewDependencies.ijkplayer_java
+
 }
+
+apply from: './bintray.gradle'

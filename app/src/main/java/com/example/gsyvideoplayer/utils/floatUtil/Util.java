@@ -4,10 +4,12 @@ import android.content.Context;
 import android.graphics.Point;
 import android.os.Build;
 import android.provider.Settings;
-import androidx.annotation.RequiresApi;
+import android.support.annotation.RequiresApi;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
+
+import java.lang.reflect.Method;
 
 /**
  * Created by yhao on 2017/12/22.

@@ -8,9 +8,7 @@ import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -127,7 +125,7 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
     }
 
     /**
-     * 开始播放
+     * 显示wifi确定框
      */
     @Override
     public void startPlayLogic() {
@@ -172,7 +170,7 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
      */
     @Override
     @SuppressWarnings("ResourceType")
-    protected void showProgressDialog(float deltaX, String seekTime, long seekTimePosition, String totalTime, long totalTimeDuration) {
+    protected void showProgressDialog(float deltaX, String seekTime, int seekTimePosition, String totalTime, int totalTimeDuration) {
         if (mProgressDialog == null) {
             View localView = LayoutInflater.from(getActivityContext()).inflate(getProgressDialogLayoutId(), null);
             if (localView.findViewById(getProgressDialogProgressId()) instanceof ProgressBar) {
@@ -223,7 +221,7 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
         }
         if (totalTimeDuration > 0)
             if (mDialogProgressBar != null) {
-                mDialogProgressBar.setProgress((int)(seekTimePosition * 100 / totalTimeDuration));
+                mDialogProgressBar.setProgress(seekTimePosition * 100 / totalTimeDuration);
             }
         if (deltaX > 0) {
             if (mDialogIcon != null) {
@@ -260,12 +258,12 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
             }
             mVolumeDialog = new Dialog(getActivityContext(), R.style.video_style_dialog_progress);
             mVolumeDialog.setContentView(localView);
-            mVolumeDialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
-            mVolumeDialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL);
-            mVolumeDialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-            mVolumeDialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            mVolumeDialog.getWindow().addFlags(8);
+            mVolumeDialog.getWindow().addFlags(32);
+            mVolumeDialog.getWindow().addFlags(16);
+            mVolumeDialog.getWindow().setLayout(-2, -2);
             WindowManager.LayoutParams localLayoutParams = mVolumeDialog.getWindow().getAttributes();
-            localLayoutParams.gravity = Gravity.TOP | Gravity.START;
+            localLayoutParams.gravity = Gravity.TOP | Gravity.LEFT;
             localLayoutParams.width = getWidth();
             localLayoutParams.height = getHeight();
             int location[] = new int[2];
@@ -303,13 +301,12 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
             }
             mBrightnessDialog = new Dialog(getActivityContext(), R.style.video_style_dialog_progress);
             mBrightnessDialog.setContentView(localView);
-            mBrightnessDialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
-            mBrightnessDialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL);
-            mBrightnessDialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-            mBrightnessDialog.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
-            mBrightnessDialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            mBrightnessDialog.getWindow().addFlags(8);
+            mBrightnessDialog.getWindow().addFlags(32);
+            mBrightnessDialog.getWindow().addFlags(16);
+            mBrightnessDialog.getWindow().setLayout(-2, -2);
             WindowManager.LayoutParams localLayoutParams = mBrightnessDialog.getWindow().getAttributes();
-            localLayoutParams.gravity = Gravity.TOP | Gravity.END;
+            localLayoutParams.gravity = Gravity.TOP | Gravity.RIGHT;
             localLayoutParams.width = getWidth();
             localLayoutParams.height = getHeight();
             int location[] = new int[2];
@@ -378,21 +375,12 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
      * 点击触摸显示和隐藏逻辑
      */
     @Override
-    protected void onClickUiToggle(MotionEvent e) {
+    protected void onClickUiToggle() {
         if (mIfCurrentIsFullscreen && mLockCurScreen && mNeedLockFull) {
             setViewShowState(mLockScreen, VISIBLE);
             return;
         }
-
-        if (mIfCurrentIsFullscreen && !mSurfaceErrorPlay && mCurrentState == CURRENT_STATE_ERROR) {
-            if (mBottomContainer != null) {
-                if (mBottomContainer.getVisibility() == View.VISIBLE) {
-                    changeUiToPlayingClear();
-                } else {
-                    changeUiToPlayingShow();
-                }
-            }
-        } else if (mCurrentState == CURRENT_STATE_PREPAREING) {
+        if (mCurrentState == CURRENT_STATE_PREPAREING) {
             if (mBottomContainer != null) {
                 if (mBottomContainer.getVisibility() == View.VISIBLE) {
                     changeUiToPrepareingClear();
@@ -573,14 +561,6 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
             ((ENDownloadView) mLoadingProgressBar).reset();
         }
         updateStartImage();
-    }
-
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        dismissVolumeDialog();
-        dismissBrightnessDialog();
-
     }
 
     /**
@@ -784,7 +764,7 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
 
         if (mBottomShowProgressDrawable != null && mBottomShowProgressThumbDrawable != null) {
             standardGSYVideoPlayer.setBottomShowProgressBarDrawable(mBottomShowProgressDrawable,
-                mBottomShowProgressThumbDrawable);
+                    mBottomShowProgressThumbDrawable);
         }
 
         if (mVolumeProgressDrawable != null) {
@@ -795,7 +775,7 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
             standardGSYVideoPlayer.setDialogProgressBar(mDialogProgressBarDrawable);
         }
 
-        if (mDialogProgressHighLightColor != -11 && mDialogProgressNormalColor != -11) {
+        if (mDialogProgressHighLightColor >= 0 && mDialogProgressNormalColor >= 0) {
             standardGSYVideoPlayer.setDialogProgressColor(mDialogProgressHighLightColor, mDialogProgressNormalColor);
         }
     }
@@ -884,13 +864,5 @@ public class StandardGSYVideoPlayer extends GSYVideoPlayer {
         }
     }
 
-    /**
-     * 重新开启进度查询以及控制view消失的定时任务
-     * 用于解决GSYVideoHelper中通过removeview方式做全屏切换导致的定时任务停止的问题
-     * GSYVideoControlView   onDetachedFromWindow（）
-     */
-    public void restartTimerTask() {
-        startProgressTimer();
-        startDismissControlViewTimer();
-    }
+
 }

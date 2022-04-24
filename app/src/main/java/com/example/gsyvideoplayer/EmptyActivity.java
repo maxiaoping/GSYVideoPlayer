@@ -2,31 +2,27 @@ package com.example.gsyvideoplayer;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.widget.Button;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.view.View;
-
-import com.example.gsyvideoplayer.databinding.ActivityEmptyBinding;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class EmptyActivity extends AppCompatActivity {
 
-    ActivityEmptyBinding binding;
+    @BindView(R.id.jump_other)
+    Button jumpOther;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityEmptyBinding.inflate(getLayoutInflater());
+        setContentView(R.layout.activity_empty);
+        ButterKnife.bind(this);
+    }
 
-        View rootView = binding.getRoot();
-        setContentView(rootView);
-
-
-        binding.jumpOther.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(EmptyActivity.this, EmptyActivity.class));
-            }
-        });
+    @OnClick(R.id.jump_other)
+    public void onViewClicked() {
+        startActivity(new Intent(this, EmptyActivity.class));
     }
 }

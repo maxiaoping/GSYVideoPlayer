@@ -1,10 +1,38 @@
-apply from: "$rootDir/gradle/lib.gradle"
-
-apply from: "$rootDir/gradle/publish.gradle"
+apply plugin: 'com.android.library'
 
 android {
-    buildFeatures.buildConfig = true
-    buildTypes.all {
-        it.buildConfigField "String", "LIBRARY_VERSION", "\". Version: $PROJ_VERSION\""
+
+    def globalConfiguration = rootProject.extensions.getByName("ext")
+    compileSdkVersion globalConfiguration.androidCompileSdkVersion
+    buildToolsVersion globalConfiguration.androidBuildToolsVersion
+
+    defaultConfig {
+
+        minSdkVersion globalConfiguration.androidMinSdkVersion
+        targetSdkVersion globalConfiguration.androidTargetSdkVersion
+
+        versionCode 21
+        versionName PROJ_VERSION
+
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
     }
 }
+
+dependencies {
+    //implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+}
+
+apply from: './bintray.gradle'

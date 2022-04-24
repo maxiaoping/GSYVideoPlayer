@@ -4,85 +4,39 @@ import android.Manifest;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.util.Log;
+import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.example.gsyvideoplayer.databinding.ActivityListVideoBinding;
-import com.example.gsyvideoplayer.databinding.ActivityMainBinding;
 import com.example.gsyvideoplayer.simple.SimpleActivity;
 import com.example.gsyvideoplayer.utils.JumpUtils;
 import com.shuyu.gsyvideoplayer.GSYVideoManager;
-import com.shuyu.gsyvideoplayer.player.IjkPlayerManager;
-import com.shuyu.gsyvideoplayer.player.PlayerFactory;
-import com.shuyu.gsyvideoplayer.player.SystemPlayerManager;
 import com.shuyu.gsyvideoplayer.utils.Debuger;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import permissions.dispatcher.PermissionUtils;
-import tv.danmaku.ijk.media.exo2.Exo2PlayerManager;
+import permissions.dispatcher.RuntimePermissions;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity {
 
+    @BindView(R.id.open_btn)
+    Button openBtn;
 
-    ActivityMainBinding binding;
+    @BindView(R.id.open_btn_empty)
+    Button openBtn2;
 
     final String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
-
-    int i = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
-
-        View rootView = binding.getRoot();
-        setContentView(rootView);
-
+        setContentView(R.layout.activity_main);
         Debuger.enable();
-
-        binding.openBtn.setOnClickListener(this);
-        binding.listBtn.setOnClickListener(this);
-        binding.listBtn2.setOnClickListener(this);
-        binding.listDetail.setOnClickListener(this);
-        binding.clearCache.setOnClickListener(this);
-        binding.recycler.setOnClickListener(this);
-        binding.recycler2.setOnClickListener(this);
-        binding.recycler2.setOnClickListener(this);
-        binding.listDetailList.setOnClickListener(this);
-        binding.webDetail.setOnClickListener(this);
-        binding.danmakuVideo.setOnClickListener(this);
-        binding.fragmentVideo.setOnClickListener(this);
-        binding.moreType.setOnClickListener(this);
-        binding.inputType.setOnClickListener(this);
-        binding.openBtnEmpty.setOnClickListener(this);
-        binding.openControl.setOnClickListener(this);
-        binding.openFilter.setOnClickListener(this);
-        binding.openBtnPick.setOnClickListener(this);
-        binding.openBtnAuto.setOnClickListener(this);
-        binding.openScroll.setOnClickListener(this);
-        binding.openWindow.setOnClickListener(this);
-        binding.openBtnAd.setOnClickListener(this);
-        binding.openBtnMulti.setOnClickListener(this);
-        binding.openBtnAd2.setOnClickListener(this);
-        binding.openListAd.setOnClickListener(this);
-        binding.openCustomExo.setOnClickListener(this);
-        binding.openSimple.setOnClickListener(this);
-        binding.openSwitch.setOnClickListener(this);
-        binding.mediaCodec.setOnClickListener(this);
-        binding.detailNormalActivity.setOnClickListener(this);
-        binding.detailDownloadActivity.setOnClickListener(this);
-        binding.detailAudioActivity.setOnClickListener(this);
-        binding.detailSubtitleActivity.setOnClickListener(this);
-        binding.changeCore.setOnClickListener(this);
-        binding.viewPager2Activity.setOnClickListener(this);
-
-
+        ButterKnife.bind(this);
         boolean hadPermission = PermissionUtils.hasSelfPermissions(this, permissions);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !hadPermission) {
             String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
@@ -99,10 +53,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-
-    @Override
+    @OnClick({R.id.open_btn, R.id.list_btn, R.id.list_btn_2, R.id.list_detail, R.id.clear_cache, R.id.recycler, R.id.recycler_2, R.id.list_detail_list, R.id.web_detail, R.id.danmaku_video, R.id.fragment_video,
+            R.id.more_type, R.id.input_type, R.id.open_btn_empty, R.id.open_control, R.id.open_filter, R.id.open_btn_pick, R.id.open_btn_auto, R.id.open_scroll, R.id.open_window, R.id.open_btn_ad,
+            R.id.open_btn_multi, R.id.open_btn_ad2, R.id.open_list_ad, R.id.open_custom_exo, R.id.open_simple, R.id.open_switch})
     public void onClick(View view) {
-        Log.e("################# ","################# ");
         switch (view.getId()) {
             case R.id.open_simple:
                 //简单的播放
@@ -110,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.open_btn:
                 //直接一个页面播放的
-                JumpUtils.goToVideoPlayer(this, binding.openBtn);
+                JumpUtils.goToVideoPlayer(this, openBtn);
                 break;
             case R.id.list_btn:
                 //普通列表播放，只支持全屏，但是不支持屏幕重力旋转，滑动后不持有
@@ -156,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 JumpUtils.gotoInput(this);
                 break;
             case R.id.open_btn_empty:
-                JumpUtils.goToPlayEmptyControlActivity(this, binding.openBtnEmpty);
+                JumpUtils.goToPlayEmptyControlActivity(this, openBtn2);
                 break;
             case R.id.open_control:
                 JumpUtils.gotoControl(this);
@@ -166,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.open_btn_pick:
                 //无缝切换
-                JumpUtils.goToVideoPickPlayer(this, binding.openBtn);
+                JumpUtils.goToVideoPickPlayer(this, openBtn);
                 break;
             case R.id.open_btn_auto:
                 //列表自动播放
@@ -202,37 +156,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.open_switch:
                 JumpUtils.goToSwitch(this);
-                break;
-            case R.id.media_codec:
-                JumpUtils.goMediaCodec(this);
-                break;
-            case R.id.detail_normal_activity:
-                JumpUtils.goToDetailNormalActivity(this);
-                break;
-            case R.id.detail_download_activity:
-                JumpUtils.goToDetailDownloadActivity(this);
-                break;
-            case R.id.detail_subtitle_activity:
-                JumpUtils.goToGSYExoSubTitleDetailPlayer(this);
-                break;
-            case R.id.detail_audio_activity:
-                JumpUtils.goToDetailAudioActivity(this);
-                break;
-            case R.id.view_pager2_activity:
-                JumpUtils.goToViewPager2Activity(this);
-                break;
-            case R.id.change_core:
-                i += 1;
-                if (i % 3 == 0) {
-                    PlayerFactory.setPlayManager(IjkPlayerManager.class);
-                    binding.changeCore.setText("IJK 内核");
-                } else if (i % 3 == 1) {
-                    PlayerFactory.setPlayManager(Exo2PlayerManager.class);
-                    binding.changeCore.setText("EXO 内核");
-                } else if (i % 3 == 2) {
-                    PlayerFactory.setPlayManager(SystemPlayerManager.class);
-                    binding.changeCore.setText("系统 内核");
-                }
                 break;
             case R.id.clear_cache:
                 //清理缓存

@@ -87,7 +87,7 @@ class Files {
         }
 
         private int compareLong(long first, long second) {
-            return Long.compare(first, second);
+            return (first < second) ? -1 : ((first == second) ? 0 : 1);
         }
     }
 

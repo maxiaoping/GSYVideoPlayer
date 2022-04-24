@@ -1,293 +1,9 @@
 ## 下方个版本说明，可以当做简单的wiki使用~，效果可参考DEMO。
 
-### v8.2.0-release-jitpack (2022-04-15)
-* fix #3542 break change progress time int 2 long
-* fix #3546
-* fix #3531 clearCache custom path
-* update exoplayer  sdk 2.17.1
-
-### v8.1.9-release-jitpack(2022-02-14)
-* fix #3496
-* exo support rtsp
-
-### v8.1.6-jitpack(2021-09-13)
-
-* 增加支持横屏幕全屏和竖屏变化，屏幕不旋转，[SimpleActivity](./app/src/main/java/com/example/gsyvideoplayer/simple/SimpleActivity.java) [SimpleDetailActivityMode2](./app/src/main/java/com/example/gsyvideoplayer/simple/SimpleDetailActivityMode2.java)
-* 修复设置了超时，重试后失效的问题
-* 增加针对某些dataBinding的场景， 当context detach activity被回收会出现。
-* exo player 2.14.2
-* fix DataSource error
-
-### v8.1.4-jitpack(2021-06-16)
-
-* update #3294 fix StorageUtils
-* update fix #3275
-* update exo '2.14.0'
-* update fix #3241
-
-### 8.1.3
-
-* update exoplayer 2.14.0
-* 修复已知问题
-* #3241
-* #3275
-* ExoSoucrcManager 增加 `setDatabaseProvider` 方法
-* 修改 ExoMediaSourceInterceptListener
-
-```
-       ExoSourceManager.setExoMediaSourceInterceptListener(new ExoMediaSourceInterceptListener() {
-            @Override
-            public MediaSource getMediaSource(String dataSource, boolean preview, boolean cacheEnable, boolean isLooping, File cacheDir) {
-                //如果返回 null，就使用默认的
-                return null;
-            }
-
-            /**
-             * 通过自定义的 HttpDataSource ，可以设置自签证书或者忽略证书
-             * demo 里的 GSYExoHttpDataSourceFactory 使用的是忽略证书
-             * */
-            @Override
-            public DataSource.Factory getHttpDataSourceFactory(String userAgent, @Nullable TransferListener listener, int connectTimeoutMillis, int readTimeoutMillis,
-                                                               Map<String, String> mapHeadData, boolean allowCrossProtocolRedirects) {
-                //如果返回 null，就使用默认的
-                GSYExoHttpDataSourceFactory factory = new GSYExoHttpDataSourceFactory(userAgent, listener,
-                        connectTimeoutMillis,
-                        readTimeoutMillis, allowCrossProtocolRedirects);
-                factory.setDefaultRequestProperties(mapHeadData);
-                return factory;
-            }
-        });
-```
-
-
-## 8.1.2 (2021-03-29)
-
-* update support  exo_player2 = '2.13.2'
-* ijk uri.getScheme #3194
-* fix error cache server when HostnameVerifier &  TrustManager null
-
-
-## 8.1.1 (2021-03-15)
-
-* #3174 fix HostnameVerifier for google play
-
-## 8.1.0 (2021-02-02)
-
-* fix  #3126 crash arm64 with Android11
-* update support #3128 pass MotionEvent
-* update target 30
-
-
-## 8.0.0 (2020-12-01)
-
-* fix #3040 CommonUtil 获取网络信息空指针异常
-* update ijk to FFMPEG 4.0
-
-## 7.1.8 (2020-10-26)
-
-* update support exoplayer 2.12.1
-* fix #3016、[#3009](https://github.com/CarGuo/GSYVideoPlayer/issues/3009)
-
-
-## 7.1.6 (2020-09-08)
-
-* fix #2922 deprecated SkipSSLChain ，support api custom dataSource
-* 因为忽略证书会导致一些 Google Play 的审核问题所以改为自定义支持
-* 如果需要使用 SkipSSLChain ，可以参考 demo 里面的 exosource
-* 另外通过 getHttpDataSourceFactory 也可以自定义需要的 HttpDataSource 逻辑
-
-```
-ExoSourceManager.setExoMediaSourceInterceptListener(new ExoMediaSourceInterceptListener() {
-    @Override
-    public MediaSource getMediaSource(String dataSource, boolean preview, boolean cacheEnable, boolean isLooping, File cacheDir) {
-        //如果返回 null，就使用默认的
-        return null;
-    }
-
-    /**
-     * 通过自定义的 HttpDataSource ，可以设置自签证书或者忽略证书
-     * demo 里的 GSYExoHttpDataSourceFactory 使用的是忽略证书
-     * */
-    @Override
-    public HttpDataSource.BaseFactory getHttpDataSourceFactory(String userAgent, @Nullable TransferListener listener, int connectTimeoutMillis, int readTimeoutMillis, boolean allowCrossProtocolRedirects) {
-        //如果返回 null，就使用默认的
-        return new GSYExoHttpDataSourceFactory(userAgent, listener,
-                connectTimeoutMillis,
-                readTimeoutMillis, allowCrossProtocolRedirects);
-    }
-});
-```
-
-
-## 7.1.5 (2020-07-30)
-
-* fix #2625 add WeakReference<Activity>
-* fix auto full issue
-* fix #2813、#2753、#2766
-
-
-## 7.1.4 (2020-05-14)
-
-* fix #2719 support Exo User-Agent
-* fix #2559
-* update ex_so lib
-* fix proxy cache support Android Q
-* proxy cache skip ssl error
-* add ProxyCacheManager support DEFAULT_MAX_SIZE
-* add ProxyCacheManager FileNameGenerator support custom cache file name
-* add touchLongPress Api
-
-
-## 7.1.3 (2020-03-19)
-
-* update exoplayer 2.11.3
-* fix #2588 setOverrideExtension 方法全屏失效问题
-* fix #2570 add OrientationOption 增加旋转灵敏度调节
-* add isShowDragProgressTextOnSeekBar 判断拖动进度条时，是否在 seekbar 开始部位显示拖动进度
-* exo 内核增加外挂字幕的支持
-* fix #2456 and update from [1869#issuecomment-569615314](https://github.com/CarGuo/GSYVideoPlayer/issues/1869#issuecomment-569615314)
-* fix #2489 优化网络监听
-* fix #2480 修复屏幕旋转问题
-
-### 7.1.2(2019-12-02)
-
-* fix #2436 增加 exo 的 http timeout
-```
-ExoSourceManager
-
- public static void setHttpReadTimeout(int httpReadTimeout)
-
- public static void setHttpConnectTimeout(int httpConnectTimeout)
-
-```
-* 优化视频尺寸显示计算
-* 增加 exo 支持 raw 文件播放
-
-```
-String url =  RawResourceDataSource.buildRawResourceUri(R.raw.test).toString();
-```
-* 增加模拟下载共用缓存例子 DetailDownloadPlayer
-* 适配 android 10 的全屏
-* fix #2382、#2411、#2343、#2379、#2350、#2328
-* 增加设置自定义显示比例的支持
-
-```
-GSYVideoType.setScreenScaleRatio
-```
-* 增加外挂字幕例子 [exo2模式下支持自定增加外挂字幕](https://github.com/CarGuo/GSYVideoPlayer/tree/master/app/src/main/java/com/example/gsyvideoplayer/exosubtitle)
-
-
-
-
-### 7.1.1(2019-10-12)
-
-* fix #2244、#2252(resolveFullVideoShow 不执行情况)、#2279、#2280
-* fix #2303(去除 TimerTask)、#2306（某些机型退到后台返回不显示）
-* 增加 setNeedAutoAdaptation
-```
-    /**
-     * 是否需要适配在竖屏横屏时，由于刘海屏或者打孔屏占据空间，导致标题显示被遮盖的问题
-     *
-     * @param needAutoAdaptation 默认false
-     */
-    public void setNeedAutoAdaptation(boolean needAutoAdaptation)
-```
-
-
-### 7.1.0(2019-09-01)
-
-* update ExoPlayer to 2.10.4
-* 添加沉浸式支持
-* 增加 IPlayerInitSuccessListener 播放器初始化成果回调
-```
-GSYVideoManager
-    .instance()
-    .setPlayerInitSuccessListener(new IPlayerInitSuccessListener() {
-        ///播放器初始化成果回调，可用于播放前的自定义设置
-        @Override
-        public void onPlayerInitSuccess(IMediaPlayer player, GSYModel model) {
-            if (player instanceof IjkExo2MediaPlayer) {
-                ((IjkExo2MediaPlayer) player).setTrackSelector(new DefaultTrackSelector());
-                ((IjkExo2MediaPlayer) player).setLoadControl(new DefaultLoadControl());
-            }
-        }
-    });
-```
-* fix #2142
-* 增加硬解码不花屏幕 [RecyclerView3Activity](https://github.com/CarGuo/GSYVideoPlayer/blob/master/app/src/main/java/com/example/gsyvideoplayer/RecyclerView3Activity.java)
-
-
-
-### 7.0.2(2019-07-01)
-* update ExoPlayer 到 2.10.0
-* 增加 allowCrossProtocolRedirects
-
-```
-Map<String, String> header = new HashMap<>();
-        header.put("allowCrossProtocolRedirects", "true");
-
- xxx.setMapHeadData(header)
-```
-
-* 调整 onVideoResume 内部方法
-* 修改默认亮度布局和布局兼容问题
-* 升级一些依赖
-* exo player setSeekParameter
-
-```
- //设置 seek 的临近帧。
-if(detailPlayer.getGSYVideoManager().getPlayer() instanceof Exo2PlayerManager) {
-    ((Exo2PlayerManager) detailPlayer.getGSYVideoManager().getPlayer()).setSeekParameter(SeekParameters.NEXT_SYNC);
-    Debuger.printfError("***** setSeekParameter **** ");
-}
-```
-
-### 7.0.1(2019-04-07)
-* 升级 ExoPlayer 到 2.9.6
-* ExoPlayer 增加 SSL 证书忽略支持
-```
-ExoSourceManager.setSkipSSLChain(true);
-```
-* 修复全屏动画过程中按下返回键问题 #1938
-* 修复全屏下的弹窗消失问题 #1927
-* 修复全屏切换过程过程中的音频焦点问题 #1912
-* 修复按键判空问题 #1919
-* 修复全屏切换surface的release问题
-
-
-### 7.0.0-beta1(2019-03-03)
-* orientation 增加 pause
-```
- orientationUtils.setIsPause(true);
-```
-* update exoPlayer to 2.9.5。
-* exoPlayer 和 mediaPlayer 支持网速显示。
-* 修复一些问题。
-* 支持库切换到 androidx
-
-
-### 6.0.3(2019-01-15)
-
-* update exoPlayer to 2.9.3
-* update gradle 3.3.0
-* update build sdk 28
-* update support sdk 27.1.1
-* 修復exoplayer内核的一些问题。
-
-
-
-### 6.0.2(2018-12-21)
-
-* update exoPlayer to 2.9.1
-* Deprecated setupLazy
-* fix exoPlayer looper
-* add `overrideExtension` to exoPlayer
-
-
 ### 6.0.1 (2018-10-14)
 * 正式发布6.0版本，调整player和cache加载模式。
 
-```
+``` 
 PlayerFactory.setPlayManager(Exo2PlayerManager.class);//EXO模式
 PlayerFactory.setPlayManager(SystemPlayerManager.class);//系统模式
 PlayerFactory.setPlayManager(IjkPlayerManager.class);//ijk模式
@@ -305,7 +21,7 @@ CacheFactory.setCacheManager(ProxyCacheManager.class);//代理缓存模式，支
 * 调整代码结构，移除 GSYVideoType 中的内核切换，直接通过 PlayerFactory 装载。
 * 调整代码结构，ExoPlayer可单独依赖，通过 PlayerFactory 装载，更方便自定义PlayerManager。
 
-```
+``` 
 //PlayerFactory.setPlayManager(new Exo2PlayerManager());//EXO模式
 //PlayerFactory.setPlayManager(new SystemPlayerManager());//系统模式
 //PlayerFactory.setPlayManager(new IjkPlayerManager());//ijk模式
@@ -313,14 +29,14 @@ CacheFactory.setCacheManager(ProxyCacheManager.class);//代理缓存模式，支
 
 * 调整代码结构，CacheFactory 更方便自定义，默认 ProxyCacheManager。
 
-```
+``` 
 //CacheFactory.setCacheManager(new ExoPlayerCacheManager());//exo缓存模式，支持m3u8，只支持exo
 //CacheFactory.setCacheManager(new ProxyCacheManager());//代理缓存模式，支持所有模式，不支持m3u8等
 ```
 
 * 增加 ExoMediaSourceInterceptListener，方便 Exo 模式下使用自定义的 MediaSource。
 
-```
+``` 
 ExoSourceManager.setExoMediaSourceInterceptListener(new ExoMediaSourceInterceptListener() {
            /**
             * @param dataSource  链接
@@ -348,7 +64,7 @@ ExoSourceManager.setExoMediaSourceInterceptListener(new ExoMediaSourceInterceptL
 
 
 ### 5.0.1(2018-07-01)
-* Update ListGSYVideoPlayer
+* Update ListGSYVideoPlayer 
 * ijkPlayer的ex_so增加avi支持
 * update ExoPlayer to 2.8.2
 * ExoPlayer模式的问题修复
@@ -610,7 +326,7 @@ player.setEffectFilter(new BarrelBlurEffect());
 * 修改了已知问题。
 * 增加了播放中调整播放速度接口。
 ```
-public void setSpeedPlaying(float speed, boolean soundTouch)
+public void setSpeedPlaying(float speed, boolean soundTouch) 
 ```
 
 ### 2.0.3(2017-08-06)
@@ -650,7 +366,7 @@ public GSYVideoPlayer getFullWindowPlayer()
 
 ### 1.6.8(2017-06-27)
 * fix listVideoUtils title错乱问题
-* fix setSpeed无法重置的问题
+* fix setSpeed无法重置的问题 
 * fix 切换网络无法继续播放问题
 * 增加旋转使能后是否跟随系统设置
 ```
@@ -664,7 +380,7 @@ public void setRotateWithSystem(boolean rotateWithSystem)
 ### 1.6.7(2017-06-16)
 * fix bug #265，全屏按返回按键之后的虚拟按键显示问题
 * so编译配置增加protocol crypto
-* 增加设置触摸显示控制ui的消失时间接口
+* 增加设置触摸显示控制ui的消失时间接口 
 ```
 StandardGSYVideoPlayer.java
 /**
@@ -679,7 +395,7 @@ public void setDismissControlTime(int dismissControlTime)
  * 调整触摸滑动快进的比例
  * @param seekRatio 滑动快进的比例，默认1。数值越大，滑动的产生的seek越小
  */
-public void setSeekRatio(float seekRatio)
+public void setSeekRatio(float seekRatio) 
 ```
 * 增加了拉伸填充的配置
 ```
@@ -695,7 +411,7 @@ public final static int SCREEN_MATCH_FULL = -4;
 ### 1.6.5(2017-05-05)
 * 增加镜像旋转demo SampleVideo
 * 修改了循环播放的UI问题
-* 修改了本地文件或者已缓存文件，显示进度问题
+* 修改了本地文件或者已缓存文件，显示进度问题 
 * 修复了横竖屏的问题
 * GSYVideoType增加SCREEN_TYPE_FULL类型，通过按照比例裁减放大视频，达到全屏
 * 增加setShowPauseCover接口
@@ -713,7 +429,7 @@ public void setShowPauseCover(boolean showPauseCover)
 
 ### 1.6.4(2017-04-20)
 * update ijk to 0.7.9 (增加了soundTouch，调速后声音变调问题得到解决)
-* 修复了可能出现的判空问题，修复了ListGSYVideoPlayer的同步问题
+* 修复了可能出现的判空问题，修复了ListGSYVideoPlayer的同步问题 
 * 修复了可移动小窗口播放结束无法移动的问题
 
 ### 1.6.3(2017-04-15)

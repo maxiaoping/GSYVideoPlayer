@@ -3,35 +3,39 @@ package com.example.gsyvideoplayer;
 import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.transition.Explode;
-import android.view.View;
 import android.view.Window;
 import android.widget.FrameLayout;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.gsyvideoplayer.adapter.RecyclerBaseAdapter;
-import com.example.gsyvideoplayer.databinding.ActivityRecyclerView2Binding;
 import com.example.gsyvideoplayer.holder.RecyclerItemViewHolder;
 import com.example.gsyvideoplayer.model.VideoModel;
 import com.shuyu.gsyvideoplayer.GSYVideoManager;
 import com.shuyu.gsyvideoplayer.listener.GSYSampleCallBack;
-import com.shuyu.gsyvideoplayer.utils.CommonUtil;
-import com.shuyu.gsyvideoplayer.utils.Debuger;
 import com.shuyu.gsyvideoplayer.utils.GSYVideoHelper;
 import com.shuyu.gsyvideoplayer.video.NormalGSYVideoPlayer;
+import com.shuyu.gsyvideoplayer.utils.CommonUtil;
+import com.shuyu.gsyvideoplayer.utils.Debuger;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 /**
  * 小窗口
  */
 public class RecyclerView2Activity extends AppCompatActivity {
 
+    @BindView(R.id.list_item_recycler)
+    RecyclerView listItemRecycler;
+
+    @BindView(R.id.video_full_container)
+    FrameLayout videoFullContainer;
 
     LinearLayoutManager linearLayoutManager;
 
@@ -47,8 +51,6 @@ public class RecyclerView2Activity extends AppCompatActivity {
 
     int firstVisibleItem;
 
-    ActivityRecyclerView2Binding binding;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // 设置一个exit transition
@@ -59,28 +61,23 @@ public class RecyclerView2Activity extends AppCompatActivity {
         }
 
         super.onCreate(savedInstanceState);
-
-
-        binding = ActivityRecyclerView2Binding.inflate(getLayoutInflater());
-
-        View rootView = binding.getRoot();
-        setContentView(rootView);
-
+        setContentView(R.layout.activity_recycler_view2);
+        ButterKnife.bind(this);
 
         initView();
 
-        binding.listItemRecycler.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        listItemRecycler.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
-            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
             }
 
             @Override
-            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                firstVisibleItem = linearLayoutManager.findFirstVisibleItemPosition();
+                firstVisibleItem   = linearLayoutManager.findFirstVisibleItemPosition();
                 lastVisibleItem = linearLayoutManager.findLastVisibleItemPosition();
-                Debuger.printfLog("firstVisibleItem " + firstVisibleItem + " lastVisibleItem " + lastVisibleItem);
+                Debuger.printfLog("firstVisibleItem " + firstVisibleItem +" lastVisibleItem " + lastVisibleItem);
                 //大于0说明有播放,//对应的播放列表TAG
                 if (smallVideoHelper.getPlayPosition() >= 0 && smallVideoHelper.getPlayTAG().equals(RecyclerItemViewHolder.TAG)) {
                     //当前播放的位置
@@ -122,16 +119,16 @@ public class RecyclerView2Activity extends AppCompatActivity {
 
     private void initView() {
         linearLayoutManager = new LinearLayoutManager(this);
-        binding.listItemRecycler.setLayoutManager(linearLayoutManager);
+        listItemRecycler.setLayoutManager(linearLayoutManager);
 
         resolveData();
 
         recyclerBaseAdapter = new RecyclerBaseAdapter(this, dataList);
-        binding.listItemRecycler.setAdapter(recyclerBaseAdapter);
+        listItemRecycler.setAdapter(recyclerBaseAdapter);
 
 
         smallVideoHelper = new GSYVideoHelper(this, new NormalGSYVideoPlayer(this));
-        smallVideoHelper.setFullViewContainer(binding.videoFullContainer);
+        smallVideoHelper.setFullViewContainer(videoFullContainer);
 
         //配置
         gsySmallVideoHelperBuilder = new GSYVideoHelper.GSYVideoHelperBuilder();

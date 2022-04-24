@@ -2,25 +2,30 @@ package com.example.gsyvideoplayer;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
+
+import android.support.v4.widget.NestedScrollView;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
-import com.example.gsyvideoplayer.databinding.ActivityDanmakuLayoutBinding;
 import com.example.gsyvideoplayer.video.DanmakuVideoPlayer;
 import com.shuyu.gsyvideoplayer.GSYVideoManager;
 import com.shuyu.gsyvideoplayer.listener.GSYSampleCallBack;
+import com.shuyu.gsyvideoplayer.video.base.GSYVideoPlayer;
 import com.shuyu.gsyvideoplayer.listener.LockClickListener;
 import com.shuyu.gsyvideoplayer.utils.OrientationUtils;
-import com.shuyu.gsyvideoplayer.video.base.GSYVideoPlayer;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.FileCallBack;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import okhttp3.Call;
 
 /**
@@ -31,6 +36,14 @@ import okhttp3.Call;
 
 public class DanmkuVideoActivity extends AppCompatActivity {
 
+    @BindView(R.id.post_detail_nested_scroll)
+    NestedScrollView postDetailNestedScroll;
+
+    @BindView(R.id.danmaku_player)
+    DanmakuVideoPlayer danmakuVideoPlayer;
+
+    @BindView(R.id.activity_detail_player)
+    RelativeLayout activityDetailPlayer;
 
     private boolean isPlay;
     private boolean isPause;
@@ -38,69 +51,61 @@ public class DanmkuVideoActivity extends AppCompatActivity {
 
     private OrientationUtils orientationUtils;
 
-    private ActivityDanmakuLayoutBinding binding;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        binding = ActivityDanmakuLayoutBinding.inflate(getLayoutInflater());
-
-        View rootView = binding.getRoot();
-        setContentView(rootView);
+        setContentView(R.layout.activity_danmaku_layout);
+        ButterKnife.bind(this);
 
 
         //使用自定义的全屏切换图片，!!!注意xml布局中也需要设置为一样的
         //必须在setUp之前设置
-        binding.danmakuPlayer.setShrinkImageRes(R.drawable.custom_shrink);
-        binding.danmakuPlayer.setEnlargeImageRes(R.drawable.custom_enlarge);
+        danmakuVideoPlayer.setShrinkImageRes(R.drawable.custom_shrink);
+        danmakuVideoPlayer.setEnlargeImageRes(R.drawable.custom_enlarge);
 
         //String url = "https://res.exexm.com/cw_145225549855002";
         String url = "http://9890.vod.myqcloud.com/9890_4e292f9a3dd011e6b4078980237cc3d3.f20.mp4";
         //String url = "https://res.exexm.com/cw_145225549855002";
-        binding.danmakuPlayer.setUp(url, true, null, "测试视频");
+        danmakuVideoPlayer.setUp(url, true, null, "测试视频");
 
         //增加封面
         ImageView imageView = new ImageView(this);
         imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
         imageView.setImageResource(R.mipmap.xxx1);
-        binding.danmakuPlayer.setThumbImageView(imageView);
+        danmakuVideoPlayer.setThumbImageView(imageView);
 
         resolveNormalVideoUI();
 
         //外部辅助的旋转，帮助全屏
-        orientationUtils = new OrientationUtils(this, binding.danmakuPlayer);
+        orientationUtils = new OrientationUtils(this, danmakuVideoPlayer);
         //初始化不打开外部的旋转
         orientationUtils.setEnable(false);
 
-        binding.danmakuPlayer.setIsTouchWiget(true);
+        danmakuVideoPlayer.setIsTouchWiget(true);
         //关闭自动旋转
-        binding.danmakuPlayer.setRotateViewAuto(false);
-        binding.danmakuPlayer.setLockLand(false);
-        binding.danmakuPlayer.setShowFullAnimation(false);
-        binding.danmakuPlayer.setNeedLockFull(true);
-        binding.danmakuPlayer.setReleaseWhenLossAudio(false);
+        danmakuVideoPlayer.setRotateViewAuto(false);
+        danmakuVideoPlayer.setLockLand(false);
+        danmakuVideoPlayer.setShowFullAnimation(false);
+        danmakuVideoPlayer.setNeedLockFull(true);
 
         //detailPlayer.setOpenPreView(true);
-        binding.danmakuPlayer.getFullscreenButton().setOnClickListener(new View.OnClickListener() {
+        danmakuVideoPlayer.getFullscreenButton().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //直接横屏
-                // ------- ！！！如果不需要旋转屏幕，可以不调用！！！-------
-                // 不需要屏幕旋转，还需要设置 setNeedOrientationUtils(false)
                 orientationUtils.resolveByClick();
 
                 //第一个true是否需要隐藏actionbar，第二个true是否需要隐藏statusbar
-                binding.danmakuPlayer.startWindowFullscreen(DanmkuVideoActivity.this, true, true);
+                danmakuVideoPlayer.startWindowFullscreen(DanmkuVideoActivity.this, true, true);
             }
         });
 
-        binding.danmakuPlayer.setVideoAllCallBack(new GSYSampleCallBack() {
+        danmakuVideoPlayer.setVideoAllCallBack(new GSYSampleCallBack() {
             @Override
             public void onPrepared(String url, Object... objects) {
                 super.onPrepared(url, objects);
                 //开始播放了才能旋转和全屏
-                orientationUtils.setEnable(binding.danmakuPlayer.isRotateWithSystem());
+                orientationUtils.setEnable(true);
                 isPlay = true;
                 getDanmu();
             }
@@ -118,16 +123,13 @@ public class DanmkuVideoActivity extends AppCompatActivity {
             @Override
             public void onQuitFullscreen(String url, Object... objects) {
                 super.onQuitFullscreen(url, objects);
-
-                // ------- ！！！如果不需要旋转屏幕，可以不调用！！！-------
-                // 不需要屏幕旋转，还需要设置 setNeedOrientationUtils(false)
                 if (orientationUtils != null) {
                     orientationUtils.backToProtVideo();
                 }
             }
         });
 
-        binding.danmakuPlayer.setLockClickListener(new LockClickListener() {
+        danmakuVideoPlayer.setLockClickListener(new LockClickListener() {
             @Override
             public void onClick(View view, boolean lock) {
                 if (orientationUtils != null) {
@@ -142,8 +144,6 @@ public class DanmkuVideoActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
 
-        // ------- ！！！如果不需要旋转屏幕，可以不调用！！！-------
-        // 不需要屏幕旋转，还需要设置 setNeedOrientationUtils(false)
         if (orientationUtils != null) {
             orientationUtils.backToProtVideo();
         }
@@ -183,22 +183,19 @@ public class DanmkuVideoActivity extends AppCompatActivity {
     }
 
 
-    /**
-     * orientationUtils 和  detailPlayer.onConfigurationChanged 方法是用于触发屏幕旋转的
-     */
     @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+    public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         //如果旋转了就全屏
         if (isPlay && !isPause) {
-            binding.danmakuPlayer.onConfigurationChanged(this, newConfig, orientationUtils, true, true);
+            danmakuVideoPlayer.onConfigurationChanged(this, newConfig, orientationUtils, true, true);
         }
     }
 
 
     private void getDanmu() {
         //下载demo然后设置
-        OkHttpUtils.get().url("https://comment.bilibili.com/205245882.xml")
+        OkHttpUtils.get().url(TextUtils.concat("http://xingyuyou.com/Public/app/barragefile/","608","barrage.txt").toString())
                 .build()
                 .execute(new FileCallBack(getApplication().getCacheDir().getAbsolutePath(), "barrage.txt")//
                 {
@@ -209,7 +206,7 @@ public class DanmkuVideoActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(File response, int id) {
                         if (!isDestory) {
-                            ((DanmakuVideoPlayer) binding.danmakuPlayer.getCurrentPlayer()).setDanmaKuStream(response);
+                            ((DanmakuVideoPlayer) danmakuVideoPlayer.getCurrentPlayer()).setDanmaKuStream(response);
                         }
 
                     }
@@ -219,15 +216,15 @@ public class DanmkuVideoActivity extends AppCompatActivity {
 
     private void resolveNormalVideoUI() {
         //增加title
-        binding.danmakuPlayer.getTitleTextView().setVisibility(View.GONE);
-        binding.danmakuPlayer.getBackButton().setVisibility(View.GONE);
+        danmakuVideoPlayer.getTitleTextView().setVisibility(View.GONE);
+        danmakuVideoPlayer.getBackButton().setVisibility(View.GONE);
     }
 
     private GSYVideoPlayer getCurPlay() {
-        if (binding.danmakuPlayer.getFullWindowPlayer() != null) {
-            return  binding.danmakuPlayer.getFullWindowPlayer();
+        if (danmakuVideoPlayer.getFullWindowPlayer() != null) {
+            return  danmakuVideoPlayer.getFullWindowPlayer();
         }
-        return binding.danmakuPlayer;
+        return danmakuVideoPlayer;
     }
 
 }

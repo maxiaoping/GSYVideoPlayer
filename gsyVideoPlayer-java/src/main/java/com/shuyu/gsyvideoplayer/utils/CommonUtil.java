@@ -1,19 +1,16 @@
 package com.shuyu.gsyvideoplayer.utils;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
-
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.view.ContextThemeWrapper;
-import androidx.appcompat.widget.TintContextWrapper;
-import androidx.fragment.app.FragmentActivity;
-
+import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ContextThemeWrapper;
+import android.support.v7.widget.TintContextWrapper;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.Surface;
@@ -31,14 +28,14 @@ import java.util.Locale;
  */
 
 public class CommonUtil {
-    public static String stringForTime(long timeMs) {
-//        if (timeMs <= 0 || timeMs >= 24 * 60 * 60 * 1000) {
-//            return "00:00";
-//        }
-        long totalSeconds = timeMs / 1000;
-        long seconds = totalSeconds % 60;
-        long minutes = (totalSeconds / 60) % 60;
-        long hours = totalSeconds / 3600;
+    public static String stringForTime(int timeMs) {
+        if (timeMs <= 0 || timeMs >= 24 * 60 * 60 * 1000) {
+            return "00:00";
+        }
+        int totalSeconds = timeMs / 1000;
+        int seconds = totalSeconds % 60;
+        int minutes = (totalSeconds / 60) % 60;
+        int hours = totalSeconds / 3600;
         StringBuilder stringBuilder = new StringBuilder();
         Formatter mFormatter = new Formatter(stringBuilder, Locale.getDefault());
         if (hours > 0) {
@@ -51,10 +48,10 @@ public class CommonUtil {
     public static boolean isWifiConnected(Context context) {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo wifiNetworkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        if (wifiNetworkInfo == null) {
-            return false;
+        if (wifiNetworkInfo.isConnected()) {
+            return true;
         }
-        return wifiNetworkInfo.isConnected();
+        return false;
     }
 
     /**
@@ -108,7 +105,6 @@ public class CommonUtil {
     }
 
 
-    @SuppressLint("RestrictedApi")
     public static void hideSupportActionBar(Context context, boolean actionBar, boolean statusBar) {
         if (actionBar) {
             AppCompatActivity appCompatActivity = CommonUtil.getAppCompActivity(context);
@@ -125,10 +121,6 @@ public class CommonUtil {
                 FragmentActivity fragmentActivity = (FragmentActivity) context;
                 fragmentActivity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                         WindowManager.LayoutParams.FLAG_FULLSCREEN);
-            } else if (context instanceof Activity) {
-                Activity activity = (Activity) context;
-                activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                        WindowManager.LayoutParams.FLAG_FULLSCREEN);
             } else {
                 CommonUtil.getAppCompActivity(context).getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                         WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -136,7 +128,6 @@ public class CommonUtil {
         }
     }
 
-    @SuppressLint("RestrictedApi")
     public static void showSupportActionBar(Context context, boolean actionBar, boolean statusBar) {
         if (actionBar) {
             AppCompatActivity appCompatActivity = CommonUtil.getAppCompActivity(context);
@@ -153,9 +144,6 @@ public class CommonUtil {
             if (context instanceof FragmentActivity) {
                 FragmentActivity fragmentActivity = (FragmentActivity) context;
                 fragmentActivity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-            } else if (context instanceof Activity) {
-                Activity activity = (Activity) context;
-                activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
             } else {
                 CommonUtil.getAppCompActivity(context).getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
             }
@@ -163,15 +151,7 @@ public class CommonUtil {
     }
 
     public static void hideNavKey(Context context) {
-        if (Build.VERSION.SDK_INT >= 29) {
-            //       设置屏幕始终在前面，不然点击鼠标，重新出现虚拟按键
-            ((Activity) context).getWindow().getDecorView().setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav
-                            // bar
-                            | View.SYSTEM_UI_FLAG_IMMERSIVE);
-
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             //       设置屏幕始终在前面，不然点击鼠标，重新出现虚拟按键
             ((Activity) context).getWindow().getDecorView().setSystemUiVisibility(
                     View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION

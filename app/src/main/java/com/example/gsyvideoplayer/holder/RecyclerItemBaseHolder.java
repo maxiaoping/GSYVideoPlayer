@@ -1,8 +1,10 @@
 package com.example.gsyvideoplayer.holder;
 
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
-import androidx.recyclerview.widget.RecyclerView;
+import com.example.gsyvideoplayer.adapter.RecyclerBaseAdapter;
+import com.shuyu.gsyvideoplayer.utils.ListVideoUtil;
 
 /**
  * Created by shuyu on 2016/12/3.

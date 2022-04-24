@@ -3,7 +3,6 @@ package com.shuyu.gsyvideoplayer.player;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.PlaybackParams;
-import android.net.TrafficStats;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Message;
@@ -24,21 +23,13 @@ import tv.danmaku.ijk.media.player.IMediaPlayer;
  * Created by guoshuyu on 2018/1/11.
  */
 
-public class SystemPlayerManager extends BasePlayerManager {
-
-    private Context context;
+public class SystemPlayerManager implements IPlayerManager {
 
     private AndroidMediaPlayer mediaPlayer;
 
     private Surface surface;
 
     private boolean release;
-
-    private long lastTotalRxBytes = 0;
-
-    private long lastTimeStamp = 0;
-
-    private boolean isPlaying = false;
 
     @Override
     public IMediaPlayer getMediaPlayer() {
@@ -47,7 +38,6 @@ public class SystemPlayerManager extends BasePlayerManager {
 
     @Override
     public void initVideoPlayer(Context context, Message msg, List<VideoOptionModel> optionModelList, ICacheManager cacheManager) {
-        this.context = context.getApplicationContext();
         mediaPlayer = new AndroidMediaPlayer();
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         release = false;
@@ -65,7 +55,6 @@ public class SystemPlayerManager extends BasePlayerManager {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        initSuccess(gsyModel);
     }
 
     @Override
@@ -77,9 +66,6 @@ public class SystemPlayerManager extends BasePlayerManager {
             surface = holder;
             if (mediaPlayer != null && holder.isValid() && !release) {
                 mediaPlayer.setSurface(holder);
-            }
-            if (!isPlaying) {
-                pause();
             }
         }
     }
@@ -105,16 +91,9 @@ public class SystemPlayerManager extends BasePlayerManager {
     }
 
     @Override
-    public void setVolume(float left, float right) {
-        if (mediaPlayer != null) {
-            mediaPlayer.setVolume(left, right);
-        }
-    }
-
-    @Override
     public void releaseSurface() {
         if (surface != null) {
-            //surface.release();
+            surface.release();
             surface = null;
         }
     }
@@ -124,10 +103,7 @@ public class SystemPlayerManager extends BasePlayerManager {
         if (mediaPlayer != null) {
             release = true;
             mediaPlayer.release();
-            mediaPlayer = null;
         }
-        lastTotalRxBytes = 0;
-        lastTimeStamp = 0;
     }
 
     @Override
@@ -138,7 +114,7 @@ public class SystemPlayerManager extends BasePlayerManager {
     @Override
     public long getNetSpeed() {
         if (mediaPlayer != null) {
-            return getNetSpeed(context);
+            //todo
         }
         return 0;
     }
@@ -153,7 +129,6 @@ public class SystemPlayerManager extends BasePlayerManager {
     public void start() {
         if (mediaPlayer != null) {
             mediaPlayer.start();
-            isPlaying = true;
         }
     }
 
@@ -161,7 +136,6 @@ public class SystemPlayerManager extends BasePlayerManager {
     public void stop() {
         if (mediaPlayer != null) {
             mediaPlayer.stop();
-            isPlaying = false;
         }
     }
 
@@ -169,7 +143,6 @@ public class SystemPlayerManager extends BasePlayerManager {
     public void pause() {
         if (mediaPlayer != null) {
             mediaPlayer.pause();
-            isPlaying = false;
         }
     }
 
@@ -254,26 +227,9 @@ public class SystemPlayerManager extends BasePlayerManager {
                 } else {
                     Debuger.printfError(" not support setSpeed");
                 }
-            } catch (Exception e) {
+            } catch (Exception e){
                 e.printStackTrace();
             }
         }
-    }
-
-    private long getNetSpeed(Context context) {
-        if (context == null) {
-            return 0;
-        }
-        long nowTotalRxBytes = TrafficStats.getUidRxBytes(context.getApplicationInfo().uid) == TrafficStats.UNSUPPORTED ? 0 : (TrafficStats.getTotalRxBytes() / 1024);//转为KB
-        long nowTimeStamp = System.currentTimeMillis();
-        long calculationTime = (nowTimeStamp - lastTimeStamp);
-        if (calculationTime == 0) {
-            return calculationTime;
-        }
-        //毫秒转换
-        long speed = ((nowTotalRxBytes - lastTotalRxBytes) * 1000 / calculationTime);
-        lastTimeStamp = nowTimeStamp;
-        lastTotalRxBytes = nowTotalRxBytes;
-        return speed;
     }
 }

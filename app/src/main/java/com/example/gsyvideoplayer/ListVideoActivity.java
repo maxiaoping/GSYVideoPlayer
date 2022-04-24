@@ -3,52 +3,46 @@ package com.example.gsyvideoplayer;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.transition.Explode;
-import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.example.gsyvideoplayer.adapter.ListNormalAdapter;
-import com.example.gsyvideoplayer.databinding.ActivityListVideo2Binding;
-import com.example.gsyvideoplayer.databinding.ActivityListVideoBinding;
 import com.shuyu.gsyvideoplayer.GSYVideoManager;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 public class ListVideoActivity extends AppCompatActivity {
 
+    @BindView(R.id.video_list)
+    ListView videoList;
+    @BindView(R.id.activity_list_video)
+    RelativeLayout activityListVideo;
 
     ListNormalAdapter listNormalAdapter;
 
     private boolean isPause;
-    private ActivityListVideoBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // 设置一个exit transition
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
             getWindow().setEnterTransition(new Explode());
             getWindow().setExitTransition(new Explode());
         }
         super.onCreate(savedInstanceState);
-
-
-        binding = ActivityListVideoBinding.inflate(getLayoutInflater());
-
-        View rootView = binding.getRoot();
-        setContentView(rootView);
-
+        setContentView(R.layout.activity_list_video);
+        ButterKnife.bind(this);
 
         listNormalAdapter = new ListNormalAdapter(this);
-        binding.videoList.setAdapter(listNormalAdapter);
+        videoList.setAdapter(listNormalAdapter);
 
-        binding.videoList.setOnScrollListener(new AbsListView.OnScrollListener() {
+        videoList.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
             }
@@ -112,7 +106,7 @@ public class ListVideoActivity extends AppCompatActivity {
 
     /********************************为了支持重力旋转********************************/
     @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+    public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         if (listNormalAdapter != null && listNormalAdapter.getListNeedAutoLand() && !isPause) {
             listNormalAdapter.onConfigurationChanged(this, newConfig);

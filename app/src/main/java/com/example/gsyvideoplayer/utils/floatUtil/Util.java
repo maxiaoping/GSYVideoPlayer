@@ -2,9 +2,7 @@ package com.example.gsyvideoplayer.utils.floatUtil;
 
 import android.content.Context;
 import android.graphics.Point;
-import android.os.Build;
 import android.provider.Settings;
-import android.support.annotation.RequiresApi;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
@@ -24,9 +22,16 @@ public class Util {
         return inflate.inflate(layoutId, null);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
     public static boolean hasPermission(Context context) {
-        return Settings.canDrawOverlays(context);
+        Boolean result;
+        try {
+            Class clazz = Settings.class;
+            Method canDrawOverlays = clazz.getDeclaredMethod("canDrawOverlays", Context.class);
+            result = (Boolean) canDrawOverlays.invoke(null, context);
+        } catch (Exception e) {
+            result = false;
+        }
+        return result;
     }
 
 

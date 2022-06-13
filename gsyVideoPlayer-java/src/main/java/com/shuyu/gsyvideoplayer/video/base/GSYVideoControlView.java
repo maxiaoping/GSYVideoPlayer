@@ -19,6 +19,9 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.shuyu.gsyvideoplayer.GSYVideoManager;
 import com.shuyu.gsyvideoplayer.R;
 import com.shuyu.gsyvideoplayer.listener.GSYVideoProgressListener;
 import com.shuyu.gsyvideoplayer.listener.LockClickListener;
@@ -26,6 +29,7 @@ import com.shuyu.gsyvideoplayer.utils.CommonUtil;
 import com.shuyu.gsyvideoplayer.utils.Debuger;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -275,8 +279,6 @@ public abstract class GSYVideoControlView extends GSYVideoView implements View.O
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-
-        Debuger.printfLog(GSYVideoControlView.this.hashCode() + "------------------------------ dismiss onDetachedFromWindow");
         cancelProgressTimer();
         cancelDismissControlViewTimer();
     }
@@ -307,19 +309,13 @@ public abstract class GSYVideoControlView extends GSYVideoView implements View.O
     @Override
     protected void setStateAndUi(int state) {
         mCurrentState = state;
-        if ((state == CURRENT_STATE_NORMAL && isCurrentMediaListener())
-                || state == CURRENT_STATE_AUTO_COMPLETE || state == CURRENT_STATE_ERROR) {
-            mHadPrepared = false;
-        }
-
         switch (mCurrentState) {
             case CURRENT_STATE_NORMAL:
                 if (isCurrentMediaListener()) {
-                    Debuger.printfLog(GSYVideoControlView.this.hashCode() + "------------------------------ dismiss CURRENT_STATE_NORMAL");
                     cancelProgressTimer();
-                    getGSYVideoManager().releaseMediaPlayer();
+                    GSYVideoManager.instance().releaseMediaPlayer();
                     releasePauseCover();
-                    mBufferPoint = 0;
+                    mBuffterPoint = 0;
                     mSaveChangeViewTIme = 0;
                 }
                 if (mAudioManager != null) {
@@ -331,22 +327,17 @@ public abstract class GSYVideoControlView extends GSYVideoView implements View.O
                 resetProgressAndTime();
                 break;
             case CURRENT_STATE_PLAYING:
-                if (isCurrentMediaListener()) {
-                    Debuger.printfLog(GSYVideoControlView.this.hashCode() + "------------------------------ CURRENT_STATE_PLAYING");
-                    startProgressTimer();
-                }
+                startProgressTimer();
                 break;
             case CURRENT_STATE_PAUSE:
-                Debuger.printfLog(GSYVideoControlView.this.hashCode() + "------------------------------ CURRENT_STATE_PAUSE");
                 startProgressTimer();
                 break;
             case CURRENT_STATE_ERROR:
                 if (isCurrentMediaListener()) {
-                    getGSYVideoManager().releaseMediaPlayer();
+                    GSYVideoManager.instance().releaseMediaPlayer();
                 }
                 break;
             case CURRENT_STATE_AUTO_COMPLETE:
-                Debuger.printfLog(GSYVideoControlView.this.hashCode() + "------------------------------ dismiss CURRENT_STATE_AUTO_COMPLETE");
                 cancelProgressTimer();
                 if (mProgressBar != null) {
                     mProgressBar.setProgress(100);
@@ -394,7 +385,7 @@ public abstract class GSYVideoControlView extends GSYVideoView implements View.O
                 return;
             }
             if (mCurrentState == CURRENT_STATE_NORMAL) {
-                if (isShowNetConfirm()) {
+                if (!mUrl.startsWith("file") && !CommonUtil.isWifiConnected(getActivityContext()) && mNeedShowWifiTip) {
                     showWifiDialog();
                     return;
                 }
@@ -419,19 +410,11 @@ public abstract class GSYVideoControlView extends GSYVideoView implements View.O
     /**
      * 双击
      */
-    protected GestureDetector gestureDetector = new GestureDetector(getContext().getApplicationContext(), new GestureDetector.SimpleOnGestureListener() {
+    protected GestureDetector gestureDetector = new GestureDetector(getContext(), new GestureDetector.SimpleOnGestureListener() {
         @Override
         public boolean onDoubleTap(MotionEvent e) {
             touchDoubleUp();
             return super.onDoubleTap(e);
-        }
-
-        @Override
-        public boolean onSingleTapConfirmed(MotionEvent e) {
-            if (!mChangePosition && !mChangeVolume && !mBrightness) {
-                onClickUiToggle();
-            }
-            return super.onSingleTapConfirmed(e);
         }
     });
 
@@ -483,9 +466,6 @@ public abstract class GSYVideoControlView extends GSYVideoView implements View.O
 
                     touchSurfaceUp();
 
-
-                    Debuger.printfLog(GSYVideoControlView.this.hashCode() + "------------------------------ surface_container ACTION_UP");
-
                     startProgressTimer();
 
                     //不要和隐藏虚拟按键后，滑出虚拟按键冲突
@@ -509,8 +489,6 @@ public abstract class GSYVideoControlView extends GSYVideoView implements View.O
                     break;
                 case MotionEvent.ACTION_UP:
                     startDismissControlViewTimer();
-
-                    Debuger.printfLog(GSYVideoControlView.this.hashCode() + "------------------------------ progress ACTION_UP");
                     startProgressTimer();
                     ViewParent vpup = getParent();
                     while (vpup != null) {
@@ -588,10 +566,10 @@ public abstract class GSYVideoControlView extends GSYVideoView implements View.O
                 mVideoAllCallBack.onClickSeekbar(mOriginUrl, mTitle, this);
             }
         }
-        if (getGSYVideoManager() != null && mHadPlay) {
+        if (GSYVideoManager.instance().getMediaPlayer() != null && mHadPlay) {
             try {
                 int time = seekBar.getProgress() * getDuration() / 100;
-                getGSYVideoManager().seekTo(time);
+                GSYVideoManager.instance().getMediaPlayer().seekTo(time);
             } catch (Exception e) {
                 Debuger.printfWarning(e.toString());
             }
@@ -603,8 +581,6 @@ public abstract class GSYVideoControlView extends GSYVideoView implements View.O
         super.onPrepared();
         if (mCurrentState != CURRENT_STATE_PREPAREING) return;
         startProgressTimer();
-
-        Debuger.printfLog(GSYVideoControlView.this.hashCode() + "------------------------------ surface_container onPrepared");
     }
 
 
@@ -613,7 +589,7 @@ public abstract class GSYVideoControlView extends GSYVideoView implements View.O
         if (mCurrentState != CURRENT_STATE_NORMAL && mCurrentState != CURRENT_STATE_PREPAREING) {
             if (percent != 0) {
                 setTextAndProgress(percent);
-                mBufferPoint = percent;
+                mBuffterPoint = percent;
                 Debuger.printfLog("Net speed: " + getNetSpeedText() + " percent " + percent);
             }
             if (mProgressBar == null) {
@@ -723,14 +699,17 @@ public abstract class GSYVideoControlView extends GSYVideoView implements View.O
             if (mBottomProgressBar != null)
                 mBottomProgressBar.setProgress(progress);
         }
+        if (!mChangePosition && !mChangeVolume && !mBrightness) {
+            onClickUiToggle();
+        }
 
         mTouchingProgressBar = false;
         dismissProgressDialog();
         dismissVolumeDialog();
         dismissBrightnessDialog();
-        if (mChangePosition && getGSYVideoManager() != null && (mCurrentState == CURRENT_STATE_PLAYING || mCurrentState == CURRENT_STATE_PAUSE)) {
+        if (mChangePosition && GSYVideoManager.instance().getMediaPlayer() != null && (mCurrentState == CURRENT_STATE_PLAYING || mCurrentState == CURRENT_STATE_PAUSE)) {
             try {
-                getGSYVideoManager().seekTo(mSeekTimePosition);
+                GSYVideoManager.instance().getMediaPlayer().seekTo(mSeekTimePosition);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -814,14 +793,15 @@ public abstract class GSYVideoControlView extends GSYVideoView implements View.O
             return;
         }
         if (mCurrentState == CURRENT_STATE_NORMAL || mCurrentState == CURRENT_STATE_ERROR) {
-            if (isShowNetConfirm()) {
+            if (!mUrl.startsWith("file") && !CommonUtil.isWifiConnected(getContext())
+                    && mNeedShowWifiTip) {
                 showWifiDialog();
                 return;
             }
             startButtonLogic();
         } else if (mCurrentState == CURRENT_STATE_PLAYING) {
             try {
-                onVideoPause();
+                GSYVideoManager.instance().getMediaPlayer().pause();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -846,7 +826,7 @@ public abstract class GSYVideoControlView extends GSYVideoView implements View.O
                 }
             }
             try {
-                getGSYVideoManager().start();
+                GSYVideoManager.instance().getMediaPlayer().start();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -898,7 +878,7 @@ public abstract class GSYVideoControlView extends GSYVideoView implements View.O
 
     protected void setProgressAndTime(int progress, int secProgress, int currentTime, int totalTime) {
 
-        if (mGSYVideoProgressListener != null && mCurrentState == CURRENT_STATE_PLAYING) {
+        if (mGSYVideoProgressListener != null) {
             mGSYVideoProgressListener.onProgress(progress, secProgress, currentTime, totalTime);
         }
 
@@ -909,31 +889,18 @@ public abstract class GSYVideoControlView extends GSYVideoView implements View.O
         if (!mTouchingProgressBar) {
             if (progress != 0) mProgressBar.setProgress(progress);
         }
-        if (getGSYVideoManager().getBufferedPercentage() > 0) {
-            secProgress = getGSYVideoManager().getBufferedPercentage();
-        }
         if (secProgress > 94) secProgress = 100;
-        setSecondaryProgress(secProgress);
+        if (secProgress != 0 && !mCacheFile) {
+            mProgressBar.setSecondaryProgress(secProgress);
+        }
         mTotalTimeTextView.setText(CommonUtil.stringForTime(totalTime));
         if (currentTime > 0)
             mCurrentTimeTextView.setText(CommonUtil.stringForTime(currentTime));
 
         if (mBottomProgressBar != null) {
             if (progress != 0) mBottomProgressBar.setProgress(progress);
-            setSecondaryProgress(secProgress);
-        }
-    }
-
-    protected void setSecondaryProgress(int secProgress) {
-        if (mProgressBar != null ) {
-            if (secProgress != 0 && !getGSYVideoManager().isCacheFile()) {
-                mProgressBar.setSecondaryProgress(secProgress);
-            }
-        }
-        if (mBottomProgressBar != null) {
-            if (secProgress != 0 && !getGSYVideoManager().isCacheFile()) {
+            if (secProgress != 0 && !mCacheFile)
                 mBottomProgressBar.setSecondaryProgress(secProgress);
-            }
         }
     }
 
@@ -1027,11 +994,6 @@ public abstract class GSYVideoControlView extends GSYVideoView implements View.O
         ((Activity) (mContext)).getWindow().setAttributes(lpa);
     }
 
-
-    protected boolean isShowNetConfirm() {
-        return !mOriginUrl.startsWith("file") && !mOriginUrl.startsWith("android.resource") && !CommonUtil.isWifiConnected(getContext())
-                && mNeedShowWifiTip && !getGSYVideoManager().cachePreview(mContext.getApplicationContext(), mCachePath, mOriginUrl);
-    }
 
     private class ProgressTimerTask extends TimerTask {
         @Override

@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.gsyvideoplayer.R;
+import com.shuyu.gsyvideoplayer.GSYVideoManager;
 import com.shuyu.gsyvideoplayer.utils.Debuger;
 import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer;
 
@@ -75,16 +76,16 @@ public class FloatingVideo extends StandardGSYVideoPlayer {
 
     @Override
     protected void startPrepare() {
-        if (getGSYVideoManager().listener() != null) {
-            getGSYVideoManager().listener().onCompletion();
+        if (GSYVideoManager.instance().listener() != null) {
+            GSYVideoManager.instance().listener().onCompletion();
         }
-        getGSYVideoManager().setListener(this);
-        getGSYVideoManager().setPlayTag(mPlayTag);
-        getGSYVideoManager().setPlayPosition(mPlayPosition);
+        GSYVideoManager.instance().setListener(this);
+        GSYVideoManager.instance().setPlayTag(mPlayTag);
+        GSYVideoManager.instance().setPlayPosition(mPlayPosition);
         mAudioManager.requestAudioFocus(onAudioFocusChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
         //((Activity) getActivityContext()).getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         mBackUpPlayingBufferState = -1;
-        getGSYVideoManager().prepare(mUrl, mMapHeadData, mLooping, mSpeed, mCache, mCachePath);
+        GSYVideoManager.instance().prepare(mUrl, mMapHeadData, mLooping, mSpeed);
         setStateAndUi(CURRENT_STATE_PREPAREING);
     }
 
@@ -99,7 +100,7 @@ public class FloatingVideo extends StandardGSYVideoPlayer {
         }
 
         if (!mIfCurrentIsFullscreen)
-            getGSYVideoManager().setLastListener(null);
+            GSYVideoManager.instance().setLastListener(null);
         mAudioManager.abandonAudioFocus(onAudioFocusChangeListener);
         //((Activity) getActivityContext()).getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
@@ -123,11 +124,11 @@ public class FloatingVideo extends StandardGSYVideoPlayer {
         }
 
         if (!mIfCurrentIsFullscreen) {
-            getGSYVideoManager().setListener(null);
-            getGSYVideoManager().setLastListener(null);
+            GSYVideoManager.instance().setListener(null);
+            GSYVideoManager.instance().setLastListener(null);
         }
-        getGSYVideoManager().setCurrentVideoHeight(0);
-        getGSYVideoManager().setCurrentVideoWidth(0);
+        GSYVideoManager.instance().setCurrentVideoHeight(0);
+        GSYVideoManager.instance().setCurrentVideoWidth(0);
 
         mAudioManager.abandonAudioFocus(onAudioFocusChangeListener);
         //((Activity) getActivityContext()).getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);

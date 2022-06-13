@@ -1,20 +1,15 @@
 package com.shuyu.gsyvideoplayer.player;
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.media.AudioManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Message;
-import android.text.TextUtils;
 import android.view.Surface;
 
-import com.shuyu.gsyvideoplayer.cache.ICacheManager;
 import com.shuyu.gsyvideoplayer.model.GSYModel;
 import com.shuyu.gsyvideoplayer.model.VideoOptionModel;
 import com.shuyu.gsyvideoplayer.utils.Debuger;
 import com.shuyu.gsyvideoplayer.utils.GSYVideoType;
-import com.shuyu.gsyvideoplayer.utils.RawDataSourceProvider;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,11 +24,9 @@ import tv.danmaku.ijk.media.player.IjkMediaPlayer;
  * Created by guoshuyu on 2018/1/11.
  */
 
-public class IjkPlayerManager implements IPlayerManager {
+public class IJKPlayerManager implements IPlayerManager {
 
-    /**
-     * log level
-     */
+    //log level
     private static int logLevel = IjkMediaPlayer.IJK_LOG_DEFAULT;
 
     private static IjkLibLoader ijkLibLoader;
@@ -51,7 +44,7 @@ public class IjkPlayerManager implements IPlayerManager {
     }
 
     @Override
-    public void initVideoPlayer(Context context, Message msg, List<VideoOptionModel> optionModelList, ICacheManager cacheManager) {
+    public void initVideoPlayer(Context context, Message msg, List<VideoOptionModel> optionModelList) {
         mediaPlayer = (ijkLibLoader == null) ? new IjkMediaPlayer() : new IjkMediaPlayer(ijkLibLoader);
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         mediaPlayer.setOnNativeInvokeListener(new IjkMediaPlayer.OnNativeInvokeListener() {
@@ -60,11 +53,6 @@ public class IjkPlayerManager implements IPlayerManager {
                 return true;
             }
         });
-
-        GSYModel gsyModel = (GSYModel) msg.obj;
-        String url = gsyModel.getUrl();
-
-
         try {
             //开启硬解码
             if (GSYVideoType.isMediaCodec()) {
@@ -73,26 +61,10 @@ public class IjkPlayerManager implements IPlayerManager {
                 mediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-auto-rotate", 1);
                 mediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-handle-resolution-change", 1);
             }
-
-            if (gsyModel.isCache() && cacheManager != null) {
-                cacheManager.doCacheLogic(context, mediaPlayer, url, gsyModel.getMapHeadData(), gsyModel.getCachePath());
-            } else {
-                if (!TextUtils.isEmpty(url)) {
-                    Uri uri = Uri.parse(url);
-                    if (uri.getScheme().equals(ContentResolver.SCHEME_ANDROID_RESOURCE)) {
-                        RawDataSourceProvider rawDataSourceProvider = RawDataSourceProvider.create(context, uri);
-                        mediaPlayer.setDataSource(rawDataSourceProvider);
-                    } else {
-                        mediaPlayer.setDataSource(url, gsyModel.getMapHeadData());
-                    }
-                } else {
-                    mediaPlayer.setDataSource(url, gsyModel.getMapHeadData());
-                }
-            }
-
-            mediaPlayer.setLooping(gsyModel.isLooping());
-            if (gsyModel.getSpeed() != 1 && gsyModel.getSpeed() > 0) {
-                mediaPlayer.setSpeed(gsyModel.getSpeed());
+            mediaPlayer.setDataSource(((GSYModel) msg.obj).getUrl(), ((GSYModel) msg.obj).getMapHeadData());
+            mediaPlayer.setLooping(((GSYModel) msg.obj).isLooping());
+            if (((GSYModel) msg.obj).getSpeed() != 1 && ((GSYModel) msg.obj).getSpeed() > 0) {
+                mediaPlayer.setSpeed(((GSYModel) msg.obj).getSpeed());
             }
             mediaPlayer.native_setLogLevel(logLevel);
             initIJKOption(mediaPlayer, optionModelList);
@@ -118,7 +90,7 @@ public class IjkPlayerManager implements IPlayerManager {
     public void setSpeed(float speed, boolean soundTouch) {
         if (speed > 0) {
             try {
-                if (mediaPlayer != null) {
+                if(mediaPlayer != null) {
                     mediaPlayer.setSpeed(speed);
                 }
             } catch (Exception e) {
@@ -142,7 +114,7 @@ public class IjkPlayerManager implements IPlayerManager {
 
     @Override
     public void setNeedMute(boolean needMute) {
-        if (mediaPlayer != null) {
+        if(mediaPlayer != null) {
             if (needMute) {
                 mediaPlayer.setVolume(0, 0);
             } else {
@@ -162,120 +134,9 @@ public class IjkPlayerManager implements IPlayerManager {
 
     @Override
     public void release() {
-        if (mediaPlayer != null) {
+        if(mediaPlayer != null) {
             mediaPlayer.release();
         }
-    }
-
-    @Override
-    public int getBufferedPercentage() {
-        return -1;
-    }
-
-    @Override
-    public long getNetSpeed() {
-        if (mediaPlayer != null) {
-            return mediaPlayer.getTcpSpeed();
-        }
-        return 0;
-    }
-
-    @Override
-    public void setSpeedPlaying(float speed, boolean soundTouch) {
-        if (mediaPlayer != null) {
-            mediaPlayer.setSpeed(speed);
-            mediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "soundtouch", (soundTouch) ? 1 : 0);
-        }
-    }
-
-    @Override
-    public void start() {
-        if (mediaPlayer != null) {
-            mediaPlayer.start();
-        }
-    }
-
-    @Override
-    public void stop() {
-        if (mediaPlayer != null) {
-            mediaPlayer.stop();
-        }
-    }
-
-    @Override
-    public void pause() {
-        if (mediaPlayer != null) {
-            mediaPlayer.pause();
-        }
-    }
-
-    @Override
-    public int getVideoWidth() {
-        if (mediaPlayer != null) {
-            return mediaPlayer.getVideoWidth();
-        }
-        return 0;
-    }
-
-    @Override
-    public int getVideoHeight() {
-        if (mediaPlayer != null) {
-            return mediaPlayer.getVideoHeight();
-        }
-        return 0;
-    }
-
-    @Override
-    public boolean isPlaying() {
-        if (mediaPlayer != null) {
-            return mediaPlayer.isPlaying();
-        }
-        return false;
-    }
-
-    @Override
-    public void seekTo(long time) {
-        if (mediaPlayer != null) {
-            mediaPlayer.seekTo(time);
-        }
-    }
-
-    @Override
-    public long getCurrentPosition() {
-        if (mediaPlayer != null) {
-            return mediaPlayer.getCurrentPosition();
-        }
-        return 0;
-    }
-
-    @Override
-    public long getDuration() {
-        if (mediaPlayer != null) {
-            return mediaPlayer.getDuration();
-        }
-        return 0;
-    }
-
-    @Override
-    public int getVideoSarNum() {
-        if (mediaPlayer != null) {
-            return mediaPlayer.getVideoSarNum();
-        }
-        return 1;
-    }
-
-    @Override
-    public int getVideoSarDen() {
-        if (mediaPlayer != null) {
-            return mediaPlayer.getVideoSarDen();
-        }
-        return 1;
-    }
-
-
-    @Override
-    public boolean isSurfaceSupportLockCanvas() {
-        return true;
     }
 
     private void initIJKOption(IjkMediaPlayer ijkMediaPlayer, List<VideoOptionModel> optionModelList) {
@@ -305,7 +166,7 @@ public class IjkPlayerManager implements IPlayerManager {
     }
 
     public static void setIjkLibLoader(IjkLibLoader ijkLibLoader) {
-        IjkPlayerManager.ijkLibLoader = ijkLibLoader;
+        IJKPlayerManager.ijkLibLoader = ijkLibLoader;
     }
 
     public static int getLogLevel() {
@@ -313,6 +174,6 @@ public class IjkPlayerManager implements IPlayerManager {
     }
 
     public static void setLogLevel(int logLevel) {
-        IjkPlayerManager.logLevel = logLevel;
+        IJKPlayerManager.logLevel = logLevel;
     }
 }

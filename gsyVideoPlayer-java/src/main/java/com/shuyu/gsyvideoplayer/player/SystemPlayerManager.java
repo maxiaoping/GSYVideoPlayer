@@ -2,13 +2,10 @@ package com.shuyu.gsyvideoplayer.player;
 
 import android.content.Context;
 import android.media.AudioManager;
-import android.media.PlaybackParams;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Message;
 import android.view.Surface;
 
-import com.shuyu.gsyvideoplayer.cache.ICacheManager;
 import com.shuyu.gsyvideoplayer.model.GSYModel;
 import com.shuyu.gsyvideoplayer.model.VideoOptionModel;
 import com.shuyu.gsyvideoplayer.utils.Debuger;
@@ -37,20 +34,15 @@ public class SystemPlayerManager implements IPlayerManager {
     }
 
     @Override
-    public void initVideoPlayer(Context context, Message msg, List<VideoOptionModel> optionModelList, ICacheManager cacheManager) {
+    public void initVideoPlayer(Context context, Message msg, List<VideoOptionModel> optionModelList) {
         mediaPlayer = new AndroidMediaPlayer();
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         release = false;
-        GSYModel gsyModel = (GSYModel) msg.obj;
         try {
-            if (gsyModel.isCache() && cacheManager != null) {
-                cacheManager.doCacheLogic(context, mediaPlayer, gsyModel.getUrl(), gsyModel.getMapHeadData(), gsyModel.getCachePath());
-            } else {
-                mediaPlayer.setDataSource(context, Uri.parse(gsyModel.getUrl()), gsyModel.getMapHeadData());
-            }
-            mediaPlayer.setLooping(gsyModel.isLooping());
-            if (gsyModel.getSpeed() != 1 && gsyModel.getSpeed() > 0) {
-                setSpeed(gsyModel.getSpeed());
+            mediaPlayer.setDataSource(context, Uri.parse(((GSYModel) msg.obj).getUrl()), ((GSYModel) msg.obj).getMapHeadData());
+            mediaPlayer.setLooping(((GSYModel) msg.obj).isLooping());
+            if (((GSYModel) msg.obj).getSpeed() != 1 && ((GSYModel) msg.obj).getSpeed() > 0) {
+
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -61,6 +53,10 @@ public class SystemPlayerManager implements IPlayerManager {
     public void showDisplay(Message msg) {
         if (msg.obj == null && mediaPlayer != null && !release) {
             mediaPlayer.setSurface(null);
+            if (surface != null) {
+                surface.release();
+                surface = null;
+            }
         } else if (msg.obj != null) {
             Surface holder = (Surface) msg.obj;
             surface = holder;
@@ -72,7 +68,7 @@ public class SystemPlayerManager implements IPlayerManager {
 
     @Override
     public void setSpeed(float speed, boolean soundTouch) {
-        setSpeed(speed);
+        Debuger.printfError(" not support setSpeed");
     }
 
     @Override
@@ -92,10 +88,7 @@ public class SystemPlayerManager implements IPlayerManager {
 
     @Override
     public void releaseSurface() {
-        if (surface != null) {
-            surface.release();
-            surface = null;
-        }
+
     }
 
     @Override
@@ -103,133 +96,6 @@ public class SystemPlayerManager implements IPlayerManager {
         if (mediaPlayer != null) {
             release = true;
             mediaPlayer.release();
-        }
-    }
-
-    @Override
-    public int getBufferedPercentage() {
-        return -1;
-    }
-
-    @Override
-    public long getNetSpeed() {
-        if (mediaPlayer != null) {
-            //todo
-        }
-        return 0;
-    }
-
-    @Override
-    public void setSpeedPlaying(float speed, boolean soundTouch) {
-
-    }
-
-
-    @Override
-    public void start() {
-        if (mediaPlayer != null) {
-            mediaPlayer.start();
-        }
-    }
-
-    @Override
-    public void stop() {
-        if (mediaPlayer != null) {
-            mediaPlayer.stop();
-        }
-    }
-
-    @Override
-    public void pause() {
-        if (mediaPlayer != null) {
-            mediaPlayer.pause();
-        }
-    }
-
-    @Override
-    public int getVideoWidth() {
-        if (mediaPlayer != null) {
-            return mediaPlayer.getVideoWidth();
-        }
-        return 0;
-    }
-
-    @Override
-    public int getVideoHeight() {
-        if (mediaPlayer != null) {
-            return mediaPlayer.getVideoHeight();
-        }
-        return 0;
-    }
-
-    @Override
-    public boolean isPlaying() {
-        if (mediaPlayer != null) {
-            return mediaPlayer.isPlaying();
-        }
-        return false;
-    }
-
-    @Override
-    public void seekTo(long time) {
-        if (mediaPlayer != null) {
-            mediaPlayer.seekTo(time);
-        }
-    }
-
-    @Override
-    public long getCurrentPosition() {
-        if (mediaPlayer != null) {
-            return mediaPlayer.getCurrentPosition();
-        }
-        return 0;
-    }
-
-    @Override
-    public long getDuration() {
-        if (mediaPlayer != null) {
-            return mediaPlayer.getDuration();
-        }
-        return 0;
-    }
-
-    @Override
-    public int getVideoSarNum() {
-        if (mediaPlayer != null) {
-            return mediaPlayer.getVideoSarNum();
-        }
-        return 1;
-    }
-
-    @Override
-    public int getVideoSarDen() {
-        if (mediaPlayer != null) {
-            return mediaPlayer.getVideoSarDen();
-        }
-        return 1;
-    }
-
-    @Override
-    public boolean isSurfaceSupportLockCanvas() {
-        return false;
-    }
-
-    private void setSpeed(float speed) {
-        if (release) {
-            return;
-        }
-        if (mediaPlayer != null && mediaPlayer.getInternalMediaPlayer() != null && mediaPlayer.isPlayable()) {
-            try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    PlaybackParams playbackParams = new PlaybackParams();
-                    playbackParams.setSpeed(speed);
-                    mediaPlayer.getInternalMediaPlayer().setPlaybackParams(playbackParams);
-                } else {
-                    Debuger.printfError(" not support setSpeed");
-                }
-            } catch (Exception e){
-                e.printStackTrace();
-            }
         }
     }
 }

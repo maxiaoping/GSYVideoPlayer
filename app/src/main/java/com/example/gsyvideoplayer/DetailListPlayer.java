@@ -8,7 +8,6 @@ import android.widget.RelativeLayout;
 
 import com.shuyu.gsyvideoplayer.GSYBaseActivityDetail;
 import com.shuyu.gsyvideoplayer.builder.GSYVideoOptionBuilder;
-import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer;
 import com.shuyu.gsyvideoplayer.video.base.GSYBaseVideoPlayer;
 import com.shuyu.gsyvideoplayer.video.base.GSYVideoPlayer;
 import com.shuyu.gsyvideoplayer.listener.LockClickListener;
@@ -27,7 +26,7 @@ import butterknife.ButterKnife;
  * Created by shuyu on 2016/12/20.
  */
 
-public class DetailListPlayer extends GSYBaseActivityDetail<ListGSYVideoPlayer> {
+public class DetailListPlayer extends GSYBaseActivityDetail {
 
 
     @BindView(R.id.post_detail_nested_scroll)
@@ -36,8 +35,7 @@ public class DetailListPlayer extends GSYBaseActivityDetail<ListGSYVideoPlayer> 
     ListGSYVideoPlayer detailPlayer;
     @BindView(R.id.activity_detail_player)
     RelativeLayout activityDetailPlayer;
-    @BindView(R.id.next)
-    View next;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,10 +67,9 @@ public class DetailListPlayer extends GSYBaseActivityDetail<ListGSYVideoPlayer> 
         detailPlayer.setRotateViewAuto(false);
         detailPlayer.setLockLand(false);
         detailPlayer.setShowFullAnimation(false);
-        //detailPlayer.setNeedLockFull(true);
-        detailPlayer.setAutoFullWithSize(true);
+        detailPlayer.setNeedLockFull(true);
 
-        detailPlayer.setVideoAllCallBack(this);
+        detailPlayer.setStandardVideoAllCallBack(this);
 
         detailPlayer.setLockClickListener(new LockClickListener() {
             @Override
@@ -84,17 +81,10 @@ public class DetailListPlayer extends GSYBaseActivityDetail<ListGSYVideoPlayer> 
             }
         });
 
-        next.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ((ListGSYVideoPlayer) detailPlayer.getCurrentPlayer()).playNext();
-            }
-        });
-
     }
 
     @Override
-    public ListGSYVideoPlayer getGSYVideoPlayer() {
+    public GSYBaseVideoPlayer getGSYVideoPlayer() {
         return detailPlayer;
     }
 
@@ -111,7 +101,6 @@ public class DetailListPlayer extends GSYBaseActivityDetail<ListGSYVideoPlayer> 
 
     /**
      * 是否启动旋转横屏，true表示启动
-     *
      * @return true
      */
     @Override
@@ -123,9 +112,10 @@ public class DetailListPlayer extends GSYBaseActivityDetail<ListGSYVideoPlayer> 
     public void onEnterFullscreen(String url, Object... objects) {
         super.onEnterFullscreen(url, objects);
         //隐藏调全屏对象的返回按键
-        GSYVideoPlayer gsyVideoPlayer = (GSYVideoPlayer) objects[1];
+        GSYVideoPlayer gsyVideoPlayer = (GSYVideoPlayer)objects[1];
         gsyVideoPlayer.getBackButton().setVisibility(View.GONE);
     }
+
 
 
     private void resolveNormalVideoUI() {
@@ -136,7 +126,7 @@ public class DetailListPlayer extends GSYBaseActivityDetail<ListGSYVideoPlayer> 
 
     private GSYVideoPlayer getCurPlay() {
         if (detailPlayer.getFullWindowPlayer() != null) {
-            return detailPlayer.getFullWindowPlayer();
+            return  detailPlayer.getFullWindowPlayer();
         }
         return detailPlayer;
     }

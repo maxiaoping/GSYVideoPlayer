@@ -2,7 +2,6 @@ package com.example.gsyvideoplayer.utils.floatUtil;
 
 import android.content.Context;
 import android.graphics.PixelFormat;
-import android.os.Build;
 import android.view.View;
 import android.view.WindowManager;
 
@@ -34,15 +33,9 @@ class FloatPhone extends FloatView {
 
     @Override
     public void setView(View view) {
-        int layout_type;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            layout_type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
-        } else {
-            layout_type = WindowManager.LayoutParams.TYPE_PHONE;
-        }
         mLayoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
                 | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
-        mLayoutParams.type = layout_type;
+        mLayoutParams.type = WindowManager.LayoutParams.TYPE_PHONE;
         mLayoutParams.windowAnimations = 0;
         mView = view;
     }

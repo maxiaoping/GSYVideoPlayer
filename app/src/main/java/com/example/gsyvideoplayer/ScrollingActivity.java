@@ -13,15 +13,15 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.example.gsyvideoplayer.listener.AppBarStateChangeListener;
+import com.example.gsyvideoplayer.listener.SampleListener;
 import com.example.gsyvideoplayer.video.LandLayoutVideo;
-import com.shuyu.gsyvideoplayer.GSYVideoManager;
 import com.shuyu.gsyvideoplayer.builder.GSYVideoOptionBuilder;
-import com.shuyu.gsyvideoplayer.listener.GSYSampleCallBack;
 import com.shuyu.gsyvideoplayer.listener.GSYVideoProgressListener;
 import com.shuyu.gsyvideoplayer.listener.LockClickListener;
 import com.shuyu.gsyvideoplayer.utils.CommonUtil;
 import com.shuyu.gsyvideoplayer.utils.Debuger;
 import com.shuyu.gsyvideoplayer.utils.OrientationUtils;
+import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer;
 import com.shuyu.gsyvideoplayer.video.base.GSYVideoPlayer;
 
 /**
@@ -39,7 +39,6 @@ public class ScrollingActivity extends AppCompatActivity {
     private AppBarLayout appBar;
     private FloatingActionButton fab;
     private CoordinatorLayout root;
-
     private CollapsingToolbarLayout toolBarLayout;
 
     private AppBarStateChangeListener.State curState;
@@ -76,7 +75,7 @@ public class ScrollingActivity extends AppCompatActivity {
                 .setUrl(url)
                 .setCacheWithPlay(false)
                 .setVideoTitle("测试视频")
-                .setVideoAllCallBack(new GSYSampleCallBack() {
+                .setStandardVideoAllCallBack(new SampleListener() {
 
                     @Override
                     public void onPrepared(String url, Object... objects) {
@@ -144,7 +143,6 @@ public class ScrollingActivity extends AppCompatActivity {
             }
         });
 
-        detailPlayer.setLinkScroll(true);
     }
 
     @Override
@@ -154,7 +152,7 @@ public class ScrollingActivity extends AppCompatActivity {
             orientationUtils.backToProtVideo();
         }
 
-        if (GSYVideoManager.backFromWindowFull(this)) {
+        if (StandardGSYVideoPlayer.backFromWindowFull(this)) {
             return;
         }
         super.onBackPressed();
@@ -192,7 +190,7 @@ public class ScrollingActivity extends AppCompatActivity {
         super.onConfigurationChanged(newConfig);
         //如果旋转了就全屏
         if (isPlay && !isPause) {
-            detailPlayer.onConfigurationChanged(this, newConfig, orientationUtils, true, true);
+            detailPlayer.onConfigurationChanged(this, newConfig, orientationUtils);
         }
     }
 
